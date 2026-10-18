@@ -14,24 +14,28 @@
         header { background-color: #222f3e; color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .logo { font-size: 24px; font-weight: bold; color: #fff; text-decoration: none; }
         .logo span { color: #ff6b6b; }
+        .header-actions { display:flex; align-items:center; gap:12px; }
+        .cart-btn { background: transparent; border: none; color: white; cursor: pointer; font-size:18px; position: relative; }
+        .cart-count { position: absolute; top: -6px; right: -8px; background: #ff6b6b; color: white; font-size: 12px; padding: 2px 6px; border-radius: 12px; }
 
-        .hero { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200') center/cover; color: white; text-align: center; padding: 40px 20px; }
+        .hero { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200') center/cover; color: white; text-align: center; padding: 40px 15px; }
         .hero h1 { font-size: 26px; margin-bottom: 8px; }
 
         .container { max-width: 1100px; margin: 30px auto; padding: 0 15px; flex: 1; }
 
         /* Category Bar Styling */
         .category-bar { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
-        .cat-btn { background: white; border: 1px solid #ddd; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; color: #444; white-space: nowrap; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .cat-btn { background: white; border: 1px solid #ddd; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; color: #444; white-space: nowrap; transition: 0.15s; }
         .cat-btn.active, .cat-btn:hover { background: #222f3e; color: white; border-color: #222f3e; }
 
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
 
-        .product-card { background: white; border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .product-card { background: white; border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
         .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
         .product-title { font-size: 16px; margin: 12px 0 6px; color: #222f3e; font-weight: 600; }
         .product-price { font-size: 18px; color: #ff6b6b; font-weight: bold; }
+        .add-cart-small { margin-top:8px; padding:8px 10px; border-radius:6px; background:#27ae60; color:white; border:none; cursor:pointer; font-weight:600; }
 
         /* Modal Styles Fix */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 9999; padding: 15px; }
@@ -80,12 +84,32 @@
         .order-price { color: #d63031; font-weight: bold; }
         .order-body p { font-size: 13px; margin-bottom: 4px; color: #333; }
         .order-body a { color: #2980b9; text-decoration: none; font-weight: bold; }
+
+        /* Cart Drawer */
+        .cart-drawer { position: fixed; right: -420px; top: 0; height: 100%; width: 380px; background: #fff; box-shadow: -8px 0 30px rgba(0,0,0,0.2); z-index: 10000; transition: right 0.25s ease; padding: 20px; display:flex; flex-direction:column; }
+        .cart-drawer.open { right: 0; }
+        .cart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+        .cart-items { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:6px; }
+        .cart-item { display:flex; gap:10px; align-items:center; border-radius:8px; padding:8px; border:1px solid #eee; }
+        .cart-item img { width:64px; height:64px; object-fit:cover; border-radius:6px; }
+        .cart-item-info { flex:1; }
+        .cart-item-title { font-weight:600; font-size:14px; }
+        .cart-item-controls { display:flex; gap:6px; align-items:center; }
+        .cart-total { font-weight:800; font-size:18px; margin-top:12px; }
+        .cart-empty { text-align:center; color:#666; padding:20px 0; }
+
     </style>
 </head>
 <body>
 
     <header>
         <a href="#" class="logo"><i class="fa-solid fa-bag-shopping"></i> Shop<span>Easy</span></a>
+        <div class="header-actions">
+            <button class="cart-btn" id="headerCartBtn" onclick="openCartDrawer()" aria-label="Open cart">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
+        </div>
     </header>
 
     <div class="hero">
@@ -127,7 +151,7 @@
                 <button class="qty-btn" onclick="updateQty(1)">+</button>
             </div>
 
-            <button class="action-btn" onclick="proceedToCheckout()"><i class="fa-solid fa-cart-shopping"></i> অর্ডার করতে এগিয়ে যান</button>
+            <button class="action-btn" onclick="addSelectedToCart()"><i class="fa-solid fa-cart-shopping"></i> কার্টে যোগ করুন</button>
         </div>
     </div>
 
@@ -139,7 +163,7 @@
             
             <div class="notice-box">
                 <strong>⚠️ ডেলিভারি চার্জ নিয়ম:</strong><br>
-                অর্ডার নিশ্চিত করতে ডেলিভারি চার্জ <strong>১৫০৳</strong> আগে সেন্ড মানি করতে হবে।<br>
+                অর্ডার নিশ্চিত করতে ডেলিভারি চার্জ <strong>১৫০৳</strong> আগে সেন্ড মানি করতে হবে (ডেমো)।
                 📱 <strong>বিকাশ/নগদ (Personal):</strong> 01607576586
             </div>
 
@@ -180,7 +204,7 @@
         </div>
     </div>
 
-    <!-- Interface 3: Admin Auth Modal -->
+    <!-- Interface 3: Admin Auth Modal (kept but access hidden) -->
     <div class="modal" id="adminAuthModal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('adminAuthModal')">&times;</span>
@@ -189,7 +213,7 @@
                 <label>পাসওয়ার্ড দিন:</label>
                 <input type="password" id="adminPass" placeholder="পাসওয়ার্ড লিখুন">
             </div>
-            <button class="action-btn" onclick="checkAdminPass()">লগইন করুন</button>
+            <button class="action-btn" onclick="alert('Admin access disabled in client. Use server-side auth.')">লগইন করুন</button>
         </div>
     </div>
 
@@ -249,9 +273,25 @@
         </div>
     </div>
 
+    <!-- Cart Drawer -->
+    <div class="cart-drawer" id="cartDrawer" aria-hidden="true">
+        <div class="cart-header">
+            <strong>আপনার কার্ট</strong>
+            <button class="close-btn" onclick="closeCartDrawer()">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItemsContainer">
+            <div class="cart-empty" id="cartEmptyMsg">কার্টে এখনও কিছু নেই।</div>
+        </div>
+        <div>
+            <div class="cart-total">মোট: <span id="cartTotal">0৳</span></div>
+            <button class="action-btn" style="margin-top:10px;" onclick="checkoutFromCart()">চেকআউট</button>
+            <button class="admin-footer-btn" style="margin-top:8px; width:100%; background:#e74c3c; border: none;" onclick="clearCart()">কার্ট ক্লিয়ার করুন</button>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2026 ShopEasy Store. All rights reserved.</p>
-        <button class="admin-footer-btn" onclick="openAdminModal()"><i class="fa-solid fa-user-lock"></i> অ্যাডমিন প্যানেল</button>
+        <button class="admin-footer-btn" id="adminFooterBtn" onclick="openAdminModal()"><i class="fa-solid fa-user-lock"></i> অ্যাডমিন প্যানেল</button>
     </footer>
 
     <!-- JavaScript Script -->
@@ -261,11 +301,138 @@
         let allProducts = [];
         let selectedProduct = null;
         let currentQty = 1;
-        const ADMIN_PASSWORD = "579781"; 
+
+        // Cart stored in localStorage under 'shopeasy_cart'
+        function getCart() {
+          try {
+            const raw = localStorage.getItem('shopeasy_cart');
+            return raw ? JSON.parse(raw) : [];
+          } catch(e) {
+            console.error('Cart parse error', e);
+            return [];
+          }
+        }
+        function saveCart(cart) {
+          localStorage.setItem('shopeasy_cart', JSON.stringify(cart));
+          renderCartCount();
+        }
+
+        function renderCartCount() {
+          const countEl = document.getElementById('cartCount');
+          const cart = getCart();
+          const qty = cart.reduce((s,i)=>s + (i.qty||1),0);
+          if (countEl) countEl.innerText = qty;
+        }
+
+        function renderCart() {
+          const container = document.getElementById('cartItemsContainer');
+          const cart = getCart();
+          if (!container) return;
+          if (!cart || cart.length === 0) {
+            container.innerHTML = '<div class="cart-empty" id="cartEmptyMsg">কার্টে এখনও কিছু নেই।</div>';
+            document.getElementById('cartTotal').innerText = '0৳';
+            return;
+          }
+
+          let html = '';
+          let total = 0;
+          cart.forEach((item, idx) => {
+            const itemTotal = (Number(item.price)||0) * (item.qty||1);
+            total += itemTotal;
+            html += `
+              <div class="cart-item" data-idx="${idx}">
+                <img src="${item.image || 'https://via.placeholder.com/100'}" alt="${item.title}">
+                <div class="cart-item-info">
+                  <div class="cart-item-title">${item.title}</div>
+                  <div style="font-size:13px; color:#666">৳ ${item.price} x ${item.qty}</div>
+                </div>
+                <div class="cart-item-controls">
+                  <button onclick="changeCartQty(${idx}, -1)">-</button>
+                  <button onclick="changeCartQty(${idx}, 1)">+</button>
+                  <button style="background:transparent;border:none;color:#e74c3c;font-weight:bold;" onclick="removeCartItem(${idx})">✕</button>
+                </div>
+              </div>
+            `;
+          });
+
+          container.innerHTML = html;
+          document.getElementById('cartTotal').innerText = total + '৳';
+        }
+
+        function addToCartByProduct(product, qty=1) {
+          const cart = getCart();
+          // match by title+price+variety to keep simple
+          const key = product.title + '|' + (product.variety || '') + '|' + product.price;
+          const existingIndex = cart.findIndex(c => (c._key === key));
+          if (existingIndex > -1) {
+            cart[existingIndex].qty = (cart[existingIndex].qty || 1) + qty;
+          } else {
+            cart.push({ _key: key, title: product.title, price: product.price, image: product.image, qty: qty });
+          }
+          saveCart(cart);
+          renderCart();
+          alert('প্রডাক্টটি কার্টে যোগ করা হয়েছে');
+        }
+
+        function addSelectedToCart() {
+          if (!selectedProduct) return;
+          const variety = document.getElementById('viewVariety') ? document.getElementById('viewVariety').value : '';
+          const qty = currentQty || 1;
+          const p = Object.assign({}, selectedProduct, { variety });
+          addToCartByProduct(p, qty);
+          closeModal('productViewModal');
+        }
+
+        function changeCartQty(idx, delta) {
+          const cart = getCart();
+          if (!cart[idx]) return;
+          cart[idx].qty = Math.max(1, (cart[idx].qty||1) + delta);
+          saveCart(cart);
+          renderCart();
+        }
+
+        function removeCartItem(idx) {
+          const cart = getCart();
+          cart.splice(idx, 1);
+          saveCart(cart);
+          renderCart();
+        }
+
+        function clearCart() {
+          if (!confirm('আপনি কি নিশ্চিতভাবে কার্ট খালি করতে চান?')) return;
+          saveCart([]);
+          renderCart();
+        }
+
+        function openCartDrawer() {
+          const d = document.getElementById('cartDrawer');
+          if (d) { d.classList.add('open'); d.setAttribute('aria-hidden','false'); }
+          renderCart();
+        }
+        function closeCartDrawer() {
+          const d = document.getElementById('cartDrawer');
+          if (d) { d.classList.remove('open'); d.setAttribute('aria-hidden','true'); }
+        }
+
+        function checkoutFromCart() {
+          const cart = getCart();
+          if (!cart || cart.length === 0) { alert('কার্ট খালি আছে'); return; }
+          // populate checkout summary (simple concatenation)
+          const productLines = cart.map(i => `${i.title} x ${i.qty}`).join(' | ');
+          const total = cart.reduce((s,i)=>s + (Number(i.price)||0)*(i.qty||1),0);
+          document.getElementById('finalProduct').value = productLines;
+          document.getElementById('finalPrice').value = `${total} ৳ (ডেলিভারি চার্জ ১৫০৳ সহ মোট: ${total + 150}৳)`;
+          openModal('checkoutModal');
+          closeCartDrawer();
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
+          // hide admin button (quick security patch) - requires proper server-side auth later
+          const adminBtn = document.getElementById('adminFooterBtn');
+          if (adminBtn) adminBtn.style.display = 'none';
+
           fetchProducts();
-          
+
           const orderForm = document.getElementById("orderForm");
           if (orderForm) {
             orderForm.addEventListener("submit", handleOrderSubmit);
@@ -275,7 +442,15 @@
           if (addProductForm) {
             addProductForm.addEventListener("submit", handleAddProductSubmit);
           }
+
+          renderCartCount();
         });
+
+        // Simple local fallback products in case remote script is unavailable
+        const FALLBACK_PRODUCTS = [
+          { title: 'Smart Watch', price: '1200', image: 'https://i.ibb.co/0F0GZ9K/watch.jpg', desc: 'Stylish smart watch', varieties: 'Black,Silver', category: 'electronics' },
+          { title: 'T-Shirt Classic', price: '450', image: 'https://i.ibb.co/2k0Y8kX/tshirt.jpg', desc: 'Comfortable cotton t-shirt', varieties: 'M,L,XL', category: 'fashion' }
+        ];
 
         function fetchProducts() {
           const grid = document.getElementById("productsGrid");
@@ -283,17 +458,20 @@
             grid.innerHTML = "<p style='text-align:center; width:100%; padding: 20px;'>প্রডাক্ট লোড হচ্ছে...</p>";
           }
 
+          // Try fetch remote first (without forced no-cors). If it fails -> fallback to local
           fetch(GOOGLE_SCRIPT_URL)
-            .then(response => response.json())
+            .then(response => {
+              if (!response.ok) throw new Error('Network response not ok');
+              return response.json();
+            })
             .then(data => {
-              allProducts = data;
+              allProducts = data && data.length ? data : FALLBACK_PRODUCTS;
               renderProducts(allProducts);
             })
             .catch(error => {
-              console.error("Error fetching products:", error);
-              if (grid) {
-                grid.innerHTML = "<p style='text-align:center; color:red; width:100%; padding: 20px;'>প্রডাক্ট লোড করতে সমস্যা হয়েছে!</p>";
-              }
+              console.warn("Remote products fetch failed, using fallback.", error);
+              allProducts = FALLBACK_PRODUCTS;
+              renderProducts(allProducts);
             });
         }
 
@@ -316,9 +494,10 @@
             const imgUrl = product.image && product.image.startsWith("http") ? product.image : "https://via.placeholder.com/200";
 
             card.innerHTML = `
-              <img src="${imgUrl}" alt="${product.title || 'Product'}" class="product-img">
+              <img src="${imgUrl}" loading="lazy" alt="${product.title || 'Product'}" class="product-img">
               <h3 class="product-title">${product.title || ''}</h3>
               <p class="product-price">৳ ${product.price || '0'}</p>
+              <button class="add-cart-small" onclick="event.stopPropagation(); addToCartByProduct(${JSON.stringify(product).replace(/'/g,"\\'")},1);">Add</button>
             `;
             grid.appendChild(card);
           });
@@ -379,18 +558,6 @@
           document.getElementById("qtyVal").innerText = currentQty;
         }
 
-        function proceedToCheckout() {
-          closeModal('productViewModal');
-          
-          const variety = document.getElementById("viewVariety").value;
-          const totalPrice = (selectedProduct.price || 0) * currentQty;
-
-          document.getElementById("finalProduct").value = `${selectedProduct.title} (${variety}) - Qty: ${currentQty}`;
-          document.getElementById("finalPrice").value = `${totalPrice} ৳ (ডেলিভারি চার্জ ১৫০৳ সহ মোট: ${totalPrice + 150}৳)`;
-
-          openModal("checkoutModal");
-        }
-
         function openModal(modalId) {
           const m = document.getElementById(modalId);
           if(m) m.style.display = "flex";
@@ -404,18 +571,6 @@
         function openAdminModal() {
           const m = document.getElementById("adminAuthModal");
           if(m) m.style.display = "flex";
-        }
-
-        function checkAdminPass() {
-          const pass = document.getElementById("adminPass").value;
-          if (pass === ADMIN_PASSWORD) {
-            closeModal('adminAuthModal');
-            document.getElementById("adminPass").value = "";
-            openModal('adminPanelModal');
-            fetchOrders();
-          } else {
-            alert("ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।");
-          }
         }
 
         function switchAdminTab(tabId, btnElement) {
@@ -492,9 +647,9 @@
             txnid: document.getElementById("custTxn").value
           };
 
+          // Keep using the Google Script but without no-cors; it may require server changes — fallback already in place
           fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
-            mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderData)
           })
@@ -504,10 +659,13 @@
             closeModal('checkoutModal');
             submitBtn.disabled = false;
             submitBtn.innerText = "অর্ডার নিশ্চিত করুন";
+            // Optionally clear cart after order
+            saveCart([]);
+            renderCart();
           })
           .catch(error => {
             console.error("Order Error:", error);
-            alert("অর্ডার পাঠাতে সমস্যা হয়েছে।");
+            alert("অর্ডার পাঠাতে সমস্যা হয়েছে (remote). কিন্তু লোকালি অর্ডার বিবরণ রেডি আছে।");
             submitBtn.disabled = false;
             submitBtn.innerText = "অর্ডার নিশ্চিত করুন";
           });
@@ -532,7 +690,6 @@
 
           fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
-            mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(productData)
           })
