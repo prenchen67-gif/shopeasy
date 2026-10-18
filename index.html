@@ -4,6 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShopEasy - Professional Store</title>
+    <meta name="title" content="ShopEasy - Professional Store">
+    <meta name="description" content="ShopEasy-এ অনলাইন শপিং, ফ্যাশন ও ইলেকট্রনিক্স প্রোডাক্ট, দ্রুত অর্ডার, নিরাপদ পেমেন্ট, এবং সহজ শপিং অভিজ্ঞতা।">
+    <meta name="keywords" content="ShopEasy, online shop Bangladesh, ecommerce, fashion, electronics, products, shopping, buy online">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#222f3e">
+    <meta name="author" content="ShopEasy">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="canonical" href="https://shopeasy.github/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ShopEasy - Professional Store">
+    <meta property="og:description" content="ShopEasy-এ অনলাইন শপিং, ফ্যাশন ও ইলেকট্রনিক্স প্রোডাক্ট, দ্রুত অর্ডার, নিরাপদ পেমেন্ট, এবং সহজ শপিং অভিজ্ঞতা।">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200">
+    <meta property="og:url" content="https://shopeasy.github/">
+    <meta property="og:site_name" content="ShopEasy">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ShopEasy - Professional Store">
+    <meta name="twitter:description" content="ShopEasy-এ অনলাইন শপিং, ফ্যাশন ও ইলেকট্রনিক্স প্রোডাক্ট, দ্রুত অর্ডার, নিরাপদ পেমেন্ট, এবং সহজ শপিং অভিজ্ঞতা।">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "ShopEasy",
+      "image": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200",
+      "description": "ShopEasy-এ অনলাইন শপিং, ফ্যাশন ও ইলেকট্রনিক্স প্রোডাক্ট, দ্রুত অর্ডার, নিরাপদ পেমেন্ট, এবং সহজ শপিং অভিজ্ঞতা।",
+      "url": "https://shopeasy.github/",
+      "telephone": "+8801607576586",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "BD"
+      }
+    }
+    </script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -361,7 +394,6 @@
 
         function addToCartByProduct(product, qty=1) {
           const cart = getCart();
-          // match by title+price+variety to keep simple
           const key = product.title + '|' + (product.variety || '') + '|' + product.price;
           const existingIndex = cart.findIndex(c => (c._key === key));
           if (existingIndex > -1) {
@@ -417,7 +449,6 @@
         function checkoutFromCart() {
           const cart = getCart();
           if (!cart || cart.length === 0) { alert('কার্ট খালি আছে'); return; }
-          // populate checkout summary (simple concatenation)
           const productLines = cart.map(i => `${i.title} x ${i.qty}`).join(' | ');
           const total = cart.reduce((s,i)=>s + (Number(i.price)||0)*(i.qty||1),0);
           document.getElementById('finalProduct').value = productLines;
@@ -427,7 +458,6 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-          // hide admin button (quick security patch) - requires proper server-side auth later
           const adminBtn = document.getElementById('adminFooterBtn');
           if (adminBtn) adminBtn.style.display = 'none';
 
@@ -446,7 +476,6 @@
           renderCartCount();
         });
 
-        // Simple local fallback products in case remote script is unavailable
         const FALLBACK_PRODUCTS = [
           { title: 'Smart Watch', price: '1200', image: 'https://i.ibb.co/0F0GZ9K/watch.jpg', desc: 'Stylish smart watch', varieties: 'Black,Silver', category: 'electronics' },
           { title: 'T-Shirt Classic', price: '450', image: 'https://i.ibb.co/2k0Y8kX/tshirt.jpg', desc: 'Comfortable cotton t-shirt', varieties: 'M,L,XL', category: 'fashion' }
@@ -458,7 +487,6 @@
             grid.innerHTML = "<p style='text-align:center; width:100%; padding: 20px;'>প্রডাক্ট লোড হচ্ছে...</p>";
           }
 
-          // Try fetch remote first (without forced no-cors). If it fails -> fallback to local
           fetch(GOOGLE_SCRIPT_URL)
             .then(response => {
               if (!response.ok) throw new Error('Network response not ok');
@@ -647,7 +675,6 @@
             txnid: document.getElementById("custTxn").value
           };
 
-          // Keep using the Google Script but without no-cors; it may require server changes — fallback already in place
           fetch(GOOGLE_SCRIPT_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -659,7 +686,6 @@
             closeModal('checkoutModal');
             submitBtn.disabled = false;
             submitBtn.innerText = "অর্ডার নিশ্চিত করুন";
-            // Optionally clear cart after order
             saveCart([]);
             renderCart();
           })
