@@ -237,7 +237,7 @@
         </div>
     </div>
 
-    <!-- Interface 3: Admin Auth Modal (kept but access hidden) -->
+    <!-- Interface 3: Admin Auth Modal -->
     <div class="modal" id="adminAuthModal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('adminAuthModal')">&times;</span>
@@ -246,7 +246,7 @@
                 <label>পাসওয়ার্ড দিন:</label>
                 <input type="password" id="adminPass" placeholder="পাসওয়ার্ড লিখুন">
             </div>
-            <button class="action-btn" onclick="alert('Admin access disabled in client. Use server-side auth.')">লগইন করুন</button>
+            <button class="action-btn" onclick="performAdminLogin()">লগইন করুন</button>
         </div>
     </div>
 
@@ -334,6 +334,68 @@
         let allProducts = [];
         let selectedProduct = null;
         let currentQty = 1;
+
+        async function hashString(value) {
+          if (!window.crypto || !window.crypto.subtle) {
+            return value;
+          }
+          const encoder = new TextEncoder();
+          const data = encoder.encode(value);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+          return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function isAdminAuthenticated() {
+          return sessionStorage.getItem('shopeasy_admin_session') === 'true';
+        }
+
+        async function performAdminLogin() {
+          const input = document.getElementById('adminPass');
+          const pass = (input.value || '').trim();
+          if (!pass) {
+            alert('পাসওয়ার্ড দিন।');
+            return;
+          }
+
+          const storedHash = sessionStorage.getItem('shopeasy_admin_hash');
+          if (storedHash) {
+            const hash = await hashString(pass);
+            if (hash === storedHash) {
+              sessionStorage.setItem('shopeasy_admin_session', 'true');
+              closeModal('adminAuthModal');
+              input.value = '';
+              openModal('adminPanelModal');
+              fetchOrders();
+              return;
+            }
+            alert('ভুল পাসওয়ার্ড!');
+            input.value = '';
+            return;
+          }
+
+          if (pass.length < 6) {
+            alert('কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন।');
+            return;
+          }
+
+          const newHash = await hashString(pass);
+          sessionStorage.setItem('shopeasy_admin_hash', newHash);
+          sessionStorage.setItem('shopeasy_admin_session', 'true');
+          closeModal('adminAuthModal');
+          input.value = '';
+          openModal('adminPanelModal');
+          fetchOrders();
+        }
+
+        function openAdminModal() {
+          if (isAdminAuthenticated()) {
+            openModal('adminPanelModal');
+            fetchOrders();
+            return;
+          }
+          const m = document.getElementById("adminAuthModal");
+          if(m) m.style.display = "flex";
+        }
 
         // Cart stored in localStorage under 'shopeasy_cart'
         function getCart() {
@@ -459,7 +521,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
           const adminBtn = document.getElementById('adminFooterBtn');
-          if (adminBtn) adminBtn.style.display = 'none';
+          if (adminBtn) adminBtn.style.display = 'inline-flex';
 
           fetchProducts();
 
@@ -586,19 +648,9 @@
           document.getElementById("qtyVal").innerText = currentQty;
         }
 
-        function openModal(modalId) {
-          const m = document.getElementById(modalId);
-          if(m) m.style.display = "flex";
-        }
-
         function closeModal(modalId) {
           const m = document.getElementById(modalId);
           if(m) m.style.display = "none";
-        }
-
-        function openAdminModal() {
-          const m = document.getElementById("adminAuthModal");
-          if(m) m.style.display = "flex";
         }
 
         function switchAdminTab(tabId, btnElement) {
