@@ -6,15 +6,47 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Database = require('better-sqlite3');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 
 const app = express();
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
 
+// CONFIG / ENV
 const PORT = process.env.PORT || 4000;
-const JWT_SECRET = process.env.JWT_SECRET || 'change_this';
+const JWT_SECRET = process.env.JWT_SECRET; // required
 const DB_FILE = process.env.DB_FILE || './shopeasy.db';
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || '*'; // set to your frontend URL in production
+
+// FAIL FAST if secret missing
+if (!JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET is not set. Set JWT_SECRET in environment and redeploy.');
+  process.exit(1);
+}
+
+// Security middlewares
+app.use(helmet());
+
+// Limit JSON body size
+app.use(express.json({ limit: '64kb' }));
+
+// Restrict CORS to configured frontend origin
+app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
+
+// Basic rate limiter for API endpoints
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 40, // limit each IP to 40 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use('/api/', apiLimiter);
+
+// Serve static frontend if present
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Initialize DB
 const db = new Database(DB_FILE);
@@ -76,7 +108,7 @@ db.prepare(`
 
 // Helpers
 function generateToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' }); // shorter expiry
 }
 
 function authMiddleware(req, res, next) {
@@ -93,12 +125,6 @@ function authMiddleware(req, res, next) {
     return res.status(401).json({ error: 'Invalid token' });
   }
 }
-
-// Serve frontend at root
-app.use(express.static(path.join(__dirname, 'public')));
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
 
 // Routes
 app.get('/api/health', (req, res) => res.json({ ok: true }));
