@@ -9,19 +9,25 @@ const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
+const crypto = require('crypto');
 
 const app = express();
 
 // CONFIG / ENV
 const PORT = process.env.PORT || 4000;
-const JWT_SECRET = process.env.JWT_SECRET; // required
+let JWT_SECRET = process.env.JWT_SECRET; // required in production
 const DB_FILE = process.env.DB_FILE || './shopeasy.db';
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || '*'; // set to your frontend URL in production
 
-// FAIL FAST if secret missing
+// Fail softly in development: generate a temporary secret when not provided, but keep fatal in production
 if (!JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET is not set. Set JWT_SECRET in environment and redeploy.');
-  process.exit(1);
+  if (process.env.NODE_ENV === 'production') {
+    console.error('FATAL: JWT_SECRET is not set. Set JWT_SECRET in environment and redeploy.');
+    process.exit(1);
+  } else {
+    JWT_SECRET = crypto.randomBytes(32).toString('hex');
+    console.warn('WARNING: JWT_SECRET not set. Using a temporary generated secret for local/dev runs. Set JWT_SECRET in environment for production deployments to avoid lost sessions.');
+  }
 }
 
 // Security middlewares
@@ -30,8 +36,12 @@ app.use(helmet());
 // Limit JSON body size
 app.use(express.json({ limit: '64kb' }));
 
-// Restrict CORS to configured frontend origin
-app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
+// Restrict CORS to configured frontend origin. If CLIENT_ORIGIN is '*', use permissive CORS without credentials to avoid browser rejection.
+if (CLIENT_ORIGIN === '*' || CLIENT_ORIGIN === '') {
+  app.use(cors());
+} else {
+  app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
+}
 
 // Basic rate limiter for API endpoints
 const apiLimiter = rateLimit({
