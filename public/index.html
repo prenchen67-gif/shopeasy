@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy - Professional Store</title>
+    <meta name="title" content="ShopEasy - Professional Store">
+    <meta name="description" content="ShopEasy-এ অনলাইন শপিং, ফ্যাশন ও ইলেকট্রনিক্স প্রোডাক্ট, দ্রুত অর্ডার, নিরাপদ ডেলিভারি এবং কাস্টমার সার্ভিস।">
+    <meta name="keywords" content="ShopEasy, online shop Bangladesh, ecommerce, fashion, electronics, products, shopping, buy online">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#222f3e">
+    <meta name="author" content="ShopEasy">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="canonical" href="https://shopeasy-1cwb.onrender.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ShopEasy - Professional Store">
+    <meta property="og:description" content="ShopEasy-এ অনলাইন শপিং, ফ্যাশন ও ইলেকট্রনিক্স প্রোডাক্ট, দ্রুত অর্ডার, নিরাপদ ডেলিভারি এবং কাস্টমার সার্ভিস।">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200">
+    <meta property="og:url" content="https://shopeasy-1cwb.onrender.com/">
+    <meta property="og:site_name" content="ShopEasy">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ShopEasy - Professional Store">
+    <meta name="twitter:description" content="ShopEasy-এ অনলাইন শপিং, ফ্যাশন ও ইলেকট্রনিক্স প্রোডাক্ট, দ্রুত অর্ডার, নিরাপদ ডেলিভারি এবং কাস্টমার সার্ভিস।">
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "ShopEasy",
+      "image": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200",
+      "description": "ShopEasy-এ অনলাইন শপিং, ফ্যাশন ও ইলেকট্রনিক্স প্রোডাক্ট, দ্রুত অর্ডার, নিকটস্থ ডেলিভারি এবং কাস্টমার সার্ভিস।",
+      "url": "https://shopeasy-1cwb.onrender.com/",
+      "telephone": "+8801607576586",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "BD"
+      }
+    }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
+
+        header { background-color: #222f3e; color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .logo { font-size: 24px; font-weight: bold; color: #fff; text-decoration: none; }
+        .logo span { color: #ff6b6b; }
+        .header-actions { display:flex; align-items:center; gap:12px; }
+        .cart-btn { background: transparent; border: none; color: white; cursor: pointer; font-size:18px; position: relative; }
+        .cart-count { position: absolute; top: -6px; right: -8px; background: #ff6b6b; color: white; font-size: 12px; padding: 2px 6px; border-radius: 12px; }
+
+        .hero { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200') center/cover; color: white; text-align: center; padding: 60px 15px; }
+        .hero h1 { font-size: 26px; margin-bottom: 8px; }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 15px; flex: 1; }
+
+        /* Category Bar Styling */
+        .category-bar { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
+        .cat-btn { background: white; border: 1px solid #ddd; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; color: #444; white-space: nowrap; transition: 0.15s; }
+        .cat-btn.active, .cat-btn:hover { background: #222f3e; color: white; border-color: #222f3e; }
+
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+
+        .product-card { background: white; border-radius: 12px; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+        .product-title { font-size: 16px; margin: 12px 0 6px; color: #222f3e; font-weight: 600; }
+        .product-price { font-size: 18px; color: #ff6b6b; font-weight: bold; }
+        .add-cart-small { margin-top:8px; padding:8px 10px; border-radius:6px; background:#27ae60; color:white; border:none; cursor:pointer; font-weight:600; }
+
+        /* Modal Styles Fix */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 9999; padding: 15px; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 450px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-btn { position: absolute; top: 12px; right: 15px; font-size: 26px; cursor: pointer; color: #777; font-weight: bold; }
+
+        .view-img { width: 100%; height: 240px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
+        .view-title { font-size: 20px; color: #222f3e; margin-bottom: 8px; }
+        .view-price { font-size: 22px; color: #ff6b6b; font-weight: bold; margin-bottom: 12px; }
+        .view-desc { font-size: 14px; color: #555; line-height: 1.5; background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 15px; white-space: pre-line; }
+
+        .option-group { margin-bottom: 15px; }
+        .option-group label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 5px; }
+        .option-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+
+        .qty-box { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .qty-btn { width: 35px; height: 35px; background: #222f3e; color: white; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; font-weight: bold; }
+        .qty-val { font-size: 18px; font-weight: bold; width: 30px; text-align: center; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .notice-box { background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; line-height: 1.5; }
+
+        .action-btn { background: #ff6b6b; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .action-btn:hover { background: #ee5253; }
+        .submit-btn { background: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .submit-btn:disabled { background: #888; }
+
+        footer { text-align: center; padding: 20px; background: #222f3e; color: white; margin-top: auto; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .admin-footer-btn { background: transparent; border: 1px solid #576574; color: #c8d6e5; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: 0.3s; }
+        .admin-footer-btn:hover { background: #ff6b6b; color: white; border-color: #ff6b6b; }
+
+        /* Admin Modal Tabs & Cards */
+        .admin-modal-wide { max-width: 600px !important; }
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .admin-tab-btn { flex: 1; padding: 10px; border: none; background: #f1f2f6; border-radius: 6px; font-weight: bold; cursor: pointer; color: #576574; transition: 0.2s; }
+        .admin-tab-btn.active { background: #222f3e; color: white; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .orders-list { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 5px; }
+        .order-card { background: #f8f9fa; border-left: 4px solid #27ae60; padding: 12px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .order-header { display: flex; justify-content: space-between; align-items: center; font-size: 15px; margin-bottom: 8px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .order-price { color: #d63031; font-weight: bold; }
+        .order-body p { font-size: 13px; margin-bottom: 4px; color: #333; }
+        .order-body a { color: #2980b9; text-decoration: none; font-weight: bold; }
+
+        /* Cart Drawer */
+        .cart-drawer { position: fixed; right: -420px; top: 0; height: 100%; width: 380px; background: #fff; box-shadow: -8px 0 30px rgba(0,0,0,0.2); z-index: 10000; transition: right 0.25s ease; }
+        .cart-drawer.open { right: 0; }
+        .cart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+        .cart-items { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:6px; }
+        .cart-item { display:flex; gap:10px; align-items:center; border-radius:8px; padding:8px; border:1px solid #eee; }
+        .cart-item img { width:64px; height:64px; object-fit:cover; border-radius:6px; }
+        .cart-item-info { flex:1; }
+        .cart-item-title { font-weight:600; font-size:14px; }
+        .cart-item-controls { display:flex; gap:6px; align-items:center; }
+        .cart-total { font-weight:800; font-size:18px; margin-top:12px; }
+        .cart-empty { text-align:center; color:#666; padding:20px 0; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo"><i class="fa-solid fa-bag-shopping"></i> Shop<span>Easy</span></a>
+        <div class="header-actions">
+            <button class="cart-btn" id="headerCartBtn" onclick="openCartDrawer()" aria-label="Open cart">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1>আমাদের চমৎকার কালেকশন</h1>
+        <p>ডিটেইলস ও অর্ডার করতে প্রডাক্টের ওপর টাচ করুন</p>
+    </div>
+
+    <div class="container">
+        <!-- Category Filter Buttons Bar -->
+        <div class="category-bar" id="categoryBar">
+            <button class="cat-btn active" onclick="filterProducts('all', this)">সকল প্রডাক্ট</button>
+            <button class="cat-btn" onclick="filterProducts('electronics', this)">ইলেকট্রনিক্স</button>
+            <button class="cat-btn" onclick="filterProducts('fashion', this)">ফ্যাশন</button>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+
+    <!-- Interface 1: Product View Modal -->
+    <div class="modal" id="productViewModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('productViewModal')">&times;</span>
+            <img id="viewImage" src="" class="view-img">
+            <h2 id="viewTitle" class="view-title"></h2>
+            <div id="viewPrice" class="view-price"></div>
+            
+            <div class="view-desc" id="viewDesc"></div>
+
+            <div class="option-group">
+                <label>কালার / ভ্যারাইটি সিলেক্ট করুন:</label>
+                <select id="viewVariety"></select>
+            </div>
+
+    
