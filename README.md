@@ -2,7 +2,7 @@
 
 This repository folder contains a lightweight backend for the ShopEasy storefront. It provides basic APIs for products, orders and a small admin area protected via JWT.
 
-This is a starter MVP: suitable for local testing and small demos. For production you should use a managed database (Postgres), HTTPS, secure cookies or other hardened auth, and a persistent server.
+This is a starter MVP: suitable for local testing and small demos. For production you should use a managed database (Postgres), HTTPS, secure cookies or other hardened auth, and a persistent server[...]
 
 Files added
 - package.json
@@ -48,6 +48,7 @@ Option A — Render.com (quick)
    - JWT_SECRET (strong secret)
    - ADMIN_USERNAME and ADMIN_PASSWORD (initial admin)
    - DB_FILE (optional, default ./shopeasy.db)
+   - CLIENT_ORIGIN (set your frontend URL, e.g. https://yourfrontend.example)
 5. Deploy. Render will provide a public URL, copy it to your frontend's `API_BASE`.
 
 Notes: SQLite file on Render will be stored in the container's disk — for production use a proper DB (Postgres) or provide a persistent disk.
@@ -63,10 +64,10 @@ Security notes
 - Use HTTPS & secure cookies for real production. Consider storing JWT in HTTP-only cookie.
 - Validate and sanitize inputs server-side (express-validator is added).
 - Add rate-limiting and CAPTCHAs for order endpoints if public.
+- Set CLIENT_ORIGIN to your frontend domain in production. If you set CLIENT_ORIGIN to "*" it will allow requests from any origin which is NOT recommended in production.
 
 Next steps (MVP -> production)
 1. Replace SQLite with Postgres or managed DB.
 2. Use HTTPS and secure cookie-based JWTs.
 3. Add payment verification (bKash/Nagad/Stripe) server-side.
 4. Add logging and monitoring (Sentry / Datadog).
-
