@@ -2,7 +2,7 @@
 
 This repository folder contains a lightweight backend for the ShopEasy storefront. It provides basic APIs for products, orders and a small admin area protected via JWT.
 
-This is a starter MVP: suitable for local testing and small demos. For production you should use a managed database (Postgres), HTTPS, secure cookies or other hardened auth, and a persistent server[...]
+This is a starter MVP: suitable for local testing and small demos. For production you should use a managed database (Postgres), HTTPS, secure cookies or other hardened auth, and a persistent server.
 
 Files added
 - package.json
@@ -41,7 +41,7 @@ Frontend integration (example)
 Deploy guide (short)
 
 Option A — Render.com (quick)
-1. Create a new Web Service and connect your GitHub repo and the branch `feature/backend-express`.
+1. Create a new Web Service and connect your GitHub repo and the branch `main`.
 2. Set the Build Command to: `npm install`
 3. Set the Start Command to: `npm start` (or `node server.js`)
 4. In the Render dashboard, add environment variables:
@@ -52,12 +52,6 @@ Option A — Render.com (quick)
 5. Deploy. Render will provide a public URL, copy it to your frontend's `API_BASE`.
 
 Notes: SQLite file on Render will be stored in the container's disk — for production use a proper DB (Postgres) or provide a persistent disk.
-
-Option B — Railway / Vercel (Serverless) / Other
-- Same story: push repo, set env vars, set start command. For production use Postgres.
-
-Docker (optional)
-- You can containerize the backend with a simple Dockerfile and deploy to any container provider.
 
 Security notes
 - Do NOT store sensitive JWT secrets in code. Use platform environment variables.
