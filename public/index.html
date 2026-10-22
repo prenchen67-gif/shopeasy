@@ -76,11 +76,9 @@
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 14px; }
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-        .notice-box { background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; line-height: 1.5; }
         .action-btn { background: #ff6b6b; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .action-btn:hover { background: #ee5253; }
         .submit-btn { background: #27ae60; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .submit-btn:disabled { background: #888; }
         footer { text-align: center; padding: 20px; background: #222f3e; color: white; margin-top: auto; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
         .admin-footer-btn { background: transparent; border: 1px solid #576574; color: #c8d6e5; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: 0.3s; }
         .admin-footer-btn:hover { background: #ff6b6b; color: white; border-color: #ff6b6b; }
@@ -95,7 +93,6 @@
         .order-header { display: flex; justify-content: space-between; align-items: center; font-size: 15px; margin-bottom: 8px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
         .order-price { color: #d63031; font-weight: bold; }
         .order-body p { font-size: 13px; margin-bottom: 4px; color: #333; }
-        .order-body a { color: #2980b9; text-decoration: none; font-weight: bold; }
         .cart-drawer { position: fixed; right: -420px; top: 0; height: 100%; width: 380px; background: #fff; box-shadow: -8px 0 30px rgba(0,0,0,0.2); z-index: 10000; transition: right 0.25s ease; }
         .cart-drawer.open { right: 0; }
         .cart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
@@ -106,7 +103,6 @@
         .cart-item-title { font-weight:600; font-size:14px; }
         .cart-item-controls { display:flex; gap:6px; align-items:center; }
         .cart-total { font-weight:800; font-size:18px; margin-top:12px; }
-        .cart-empty { text-align:center; color:#666; padding:20px 0; }
         .status-box { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #eef6ff; color: #1d4f91; font-size: 13px; border: 1px solid #cfe0ff; display: none; }
         .status-box.error { background: #fff1f1; border-color: #f5c2c7; color: #842029; }
         .status-box.success { background: #ecfdf5; border-color: #b7ebc5; color: #166534; }
@@ -138,6 +134,7 @@
         <div class="products-grid" id="productsGrid"></div>
     </div>
 
+    <!-- Product View Modal -->
     <div class="modal" id="productViewModal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('productViewModal')">&times;</span>
@@ -170,6 +167,7 @@
         </div>
     </div>
 
+    <!-- Admin Modal -->
     <div class="modal" id="adminModal">
         <div class="modal-content admin-modal-wide">
             <span class="close-btn" onclick="closeModal('adminModal')">&times;</span>
@@ -196,6 +194,7 @@
         </div>
     </div>
 
+    <!-- Cart Drawer -->
     <div class="cart-drawer" id="cartDrawer">
         <div style="padding: 20px; display:flex; flex-direction:column; height:100%;">
             <div class="cart-header">
@@ -214,7 +213,7 @@
     </footer>
 
     <script>
-        const API_BASE = 'https://shopeasy-1cwb.onrender.com';
+        const API_BASE = window.location.origin; // Dynamically handles relative API URL
 
         const state = {
             products: [],
@@ -230,11 +229,6 @@
             box.textContent = message;
             box.className = 'status-box ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : '');
             box.style.display = 'block';
-        }
-
-        function hideStatus() {
-            const box = document.getElementById('statusBox');
-            box.style.display = 'none';
         }
 
         function openCartDrawer() {
@@ -253,17 +247,18 @@
                 const data = await res.json();
                 state.products = Array.isArray(data) ? data : [];
                 filterProducts(state.currentCategory);
-                showStatus('Products loaded successfully.', 'success');
+                updateCartCount();
             } catch (error) {
                 console.error('Product fetch failed:', error);
-                showStatus('Products could not be loaded. Check backend URL and server status.', 'error');
+                showStatus('Products could not be loaded. Check backend status.', 'error');
             }
         }
 
         function filterProducts(category, button) {
             state.currentCategory = category;
             const buttons = document.querySelectorAll('.cat-btn');
-            buttons.forEach(btn => btn.classList.toggle('active', btn === button || (button === undefined && btn.textContent.includes(category === 'all' ? 'সকল' : category === 'electronics' ? 'ইলেকট্রনিক্স' : 'ফ্যাশন'))));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if (button) button.classList.add('active');
 
             state.filtered = category === 'all'
                 ? state.products
@@ -279,18 +274,20 @@
                 return;
             }
 
-            grid.innerHTML = state.filtered.map(product => `
-                <div class="product-card" onclick="openProductModal(${product.id})">
+            grid.innerHTML = state.filtered.map(product => {
+                const pId = product.id || product._id;
+                return `
+                <div class="product-card" onclick="openProductModal('${pId}')">
                     <img class="product-img" src="${product.image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80'}" alt="${product.title}">
                     <div class="product-title">${product.title}</div>
                     <div class="product-price">৳ ${product.price}</div>
-                    <button class="add-cart-small" onclick="event.stopPropagation(); addToCart(${product.id})">কার্টে যোগ</button>
+                    <button class="add-cart-small" onclick="event.stopPropagation(); addToCart('${pId}')">কার্টে যোগ</button>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function openProductModal(productId) {
-            const product = state.products.find(item => item.id === Number(productId));
+            const product = state.products.find(item => String(item.id || item._id) === String(productId));
             if (!product) return;
             state.selectedProduct = product;
             state.quantity = 1;
@@ -315,186 +312,20 @@
         }
 
         function addToCart(productId) {
-            const product = state.products.find(item => item.id === Number(productId));
+            const product = state.products.find(item => String(item.id || item._id) === String(productId));
             if (!product) return;
-            const existing = state.cart.find(item => item.id === product.id);
-            if (existing) existing.qty += 1;
-            else state.cart.push({ ...product, qty: 1 });
+            const pId = product.id || product._id;
+            const existing = state.cart.find(item => String(item.id) === String(pId));
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                state.cart.push({ id: pId, title: product.title, price: product.price, image: product.image, qty: 1 });
+            }
+            saveCart();
+            alert('কার্টে যোগ করা হয়েছে!');
+        }
+
+        function saveCart() {
             localStorage.setItem('shopeasy-cart', JSON.stringify(state.cart));
-            renderCart();
-            openCartDrawer();
-            showStatus('Product added to cart.', 'success');
-        }
-
-        function renderCart() {
-            const cartItems = document.getElementById('cartItems');
-            if (!state.cart.length) {
-                cartItems.innerHTML = '<div class="cart-empty">কার্ট খালি</div>';
-                document.getElementById('cartTotal').textContent = 'মোট: ৳0';
-                return;
-            }
-
-            let total = 0;
-            cartItems.innerHTML = state.cart.map(item => {
-                const lineTotal = Number(item.price || 0) * Number(item.qty || 1);
-                total += lineTotal;
-                return `
-                    <div class="cart-item">
-                        <img src="${item.image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80'}" alt="${item.title}">
-                        <div class="cart-item-info">
-                            <div class="cart-item-title">${item.title}</div>
-                            <div class="cart-item-controls">
-                                <button class="qty-btn" onclick="updateCartQty(${item.id}, -1)">-</button>
-                                <span>${item.qty}</span>
-                                <button class="qty-btn" onclick="updateCartQty(${item.id}, 1)">+</button>
-                            </div>
-                        </div>
-                        <div style="font-weight:700;">৳${lineTotal}</div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('cartTotal').textContent = 'মোট: ৳' + total;
-        }
-
-        function updateCartQty(productId, delta) {
-            const item = state.cart.find(p => p.id === Number(productId));
-            if (!item) return;
-            item.qty += delta;
-            if (item.qty <= 0) state.cart = state.cart.filter(p => p.id !== Number(productId));
-            localStorage.setItem('shopeasy-cart', JSON.stringify(state.cart));
-            renderCart();
-        }
-
-        function submitOrder() {
-            if (!state.selectedProduct) return;
-            const name = document.getElementById('customerName').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
-            const address = document.getElementById('customerAddress').value.trim();
-            const selectedVariety = document.getElementById('viewVariety').value;
-
-            if (!name || !phone || !address) {
-                showStatus('Please fill name, phone and address before placing order.', 'error');
-                return;
-            }
-
-            const payload = {
-                product: state.selectedProduct.title,
-                price: state.selectedProduct.price,
-                name,
-                phone,
-                address,
-                method: 'Cash on Delivery',
-                txnid: selectedVariety,
-                qty: state.quantity
-            };
-
-            fetch(`${API_BASE}/api/orders`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(async (res) => {
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(data.errors ? JSON.stringify(data.errors) : 'Order failed');
-                closeModal('productViewModal');
-                showStatus('Order placed successfully.', 'success');
-            })
-            .catch((error) => {
-                console.error('Order submit failed:', error);
-                showStatus('Order could not be placed. Check backend and form values.', 'error');
-            });
-        }
-
-        function checkoutCart() {
-            if (!state.cart.length) {
-                showStatus('Cart is empty.', 'error');
-                return;
-            }
-
-            const items = state.cart.map(item => `${item.title} (${item.qty})`).join(', ');
-            showStatus(`Cart checkout ready: ${items}`, 'success');
-            closeCartDrawer();
-        }
-
-        async function adminLogin() {
-            const username = document.getElementById('adminUsername').value.trim();
-            const password = document.getElementById('adminPassword').value.trim();
-            if (!username || !password) {
-                showStatus('Username and password are required.', 'error');
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_BASE}/api/admin/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) throw new Error(data.error || 'Login failed');
-                localStorage.setItem('shopeasy-admin-token', data.token);
-                showStatus('Login successful.', 'success');
-                loadAdminOrders();
-            } catch (error) {
-                console.error('Admin login failed:', error);
-                showStatus('Admin login failed. Check backend and credentials.', 'error');
-            }
-        }
-
-        async function loadAdminOrders() {
-            const token = localStorage.getItem('shopeasy-admin-token');
-            if (!token) return;
-            try {
-                const res = await fetch(`${API_BASE}/api/admin/orders`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = await res.json().catch(() => []);
-                if (!res.ok) throw new Error('Unauthorized');
-                const ordersList = document.getElementById('ordersList');
-                if (!Array.isArray(data) || !data.length) {
-                    ordersList.innerHTML = '<div class="order-card">No orders yet.</div>';
-                    return;
-                }
-                ordersList.innerHTML = data.map(order => `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <strong>#${order.id}</strong>
-                            <span class="order-price">৳ ${order.price || 0}</span>
-                        </div>
-                        <div class="order-body">
-                            <p><strong>Product:</strong> ${order.product || 'N/A'}</p>
-                            <p><strong>Name:</strong> ${order.customer_name || 'N/A'}</p>
-                            <p><strong>Phone:</strong> ${order.phone || 'N/A'}</p>
-                            <p><strong>Address:</strong> ${order.address || 'N/A'}</p>
-                            <p><strong>Method:</strong> ${order.payment_method || 'N/A'}</p>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Load admin orders failed:', error);
-                showStatus('Could not load admin orders. Please login again.', 'error');
-            }
-        }
-
-        function openAdminModal() {
-            document.getElementById('adminModal').style.display = 'flex';
-            loadAdminOrders();
-        }
-
-        function switchAdminTab(tabName) {
-            document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.toggle('active', btn.textContent.toLowerCase() === tabName));
-            const loginTab = document.getElementById('adminLoginTab');
-            const ordersTab = document.getElementById('adminOrdersTab');
-            loginTab.classList.toggle('active', tabName === 'login');
-            ordersTab.classList.toggle('active', tabName === 'orders');
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchProducts();
-            renderCart();
-            showStatus('Connecting to backend...', 'info');
-        });
-    </script>
-</body>
-</html>
+            updateCartCount();
+ 
