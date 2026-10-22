@@ -1,10 +1,10 @@
-// server.js — ShopEasy backend (Express + SQLite)
+// server.js — ShopEasy backend (Express + MongoDB)
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Database = require('better-sqlite3');
+const mongoose = require('mongoose');
 const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -15,110 +15,106 @@ const app = express();
 
 // CONFIG / ENV
 const PORT = process.env.PORT || 4000;
-let JWT_SECRET = process.env.JWT_SECRET; // required in production
-const DB_FILE = process.env.DB_FILE || './shopeasy.db';
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || '*'; // set to your frontend URL in production
+let JWT_SECRET = process.env.JWT_SECRET;
+const MONGO_URI = process.env.MONGO_URI; // MongoDB connection string
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || '*';
 
-// Fail softly in development: generate a temporary secret when not provided, but keep fatal in production
 if (!JWT_SECRET) {
   if (process.env.NODE_ENV === 'production') {
-    console.error('FATAL: JWT_SECRET is not set. Set JWT_SECRET in environment and redeploy.');
+    console.error('FATAL: JWT_SECRET is not set.');
     process.exit(1);
   } else {
     JWT_SECRET = crypto.randomBytes(32).toString('hex');
-    console.warn('WARNING: JWT_SECRET not set. Using a temporary generated secret for local/dev runs. Set JWT_SECRET in environment for production deployments to avoid lost sessions.');
   }
 }
 
-// Security middlewares
+// Security & Middlewares
 app.use(helmet());
-
-// Limit JSON body size
 app.use(express.json({ limit: '64kb' }));
 
-// Restrict CORS to configured frontend origin. If CLIENT_ORIGIN is '*', use permissive CORS without credentials to avoid browser rejection.
 if (CLIENT_ORIGIN === '*' || CLIENT_ORIGIN === '') {
   app.use(cors());
 } else {
   app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 }
 
-// Basic rate limiter for API endpoints
 const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 40, // limit each IP to 40 requests per windowMs
+  windowMs: 60 * 1000,
+  max: 40,
   standardHeaders: true,
   legacyHeaders: false
 });
 app.use('/api/', apiLimiter);
 
-// Serve static frontend if present
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Initialize DB
-const db = new Database(DB_FILE);
-db.pragma('journal_mode = WAL');
+// MongoDB Connection
+if (MONGO_URI) {
+  mongoose.connect(MONGO_URI)
+    .then(() => console.log('MongoDB connected successfully'))
+    .catch(err => console.error('MongoDB connection error:', err));
+} else {
+  console.warn('WARNING: MONGO_URI is not set in environment variables!');
+}
 
-// Create tables
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS admins (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password_hash TEXT
-  )
-`).run();
+// Database Schemas & Models
+const adminSchema = new mongoose.Schema({
+  username: { type: String, unique: true, required: true },
+  password_hash: { type: String, required: true }
+});
 
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT,
-    price TEXT,
-    image TEXT,
-    desc TEXT,
-    varieties TEXT,
-    category TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`).run();
+const productSchema = new mongoose.Schema({
+  title: String,
+  price: String,
+  image: String,
+  desc: String,
+  varieties: String,
+  category: String,
+  created_at: { type: Date, default: Date.now }
+});
 
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS orders (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    product TEXT,
-    price TEXT,
-    customer_name TEXT,
-    phone TEXT,
-    address TEXT,
-    payment_method TEXT,
-    txnid TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`).run();
+const orderSchema = new mongoose.Schema({
+  product: String,
+  price: String,
+  customer_name: String,
+  phone: String,
+  address: String,
+  payment_method: String,
+  txnid: String,
+  created_at: { type: Date, default: Date.now }
+});
 
-// Seed admin from env (only if ADMIN_PASSWORD provided and user not exists)
+const Admin = mongoose.model('Admin', adminSchema);
+const Product = mongoose.model('Product', productSchema);
+const Order = mongoose.model('Order', orderSchema);
+
+// Seed Admin
 (async () => {
-  const username = process.env.ADMIN_USERNAME || 'admin';
-  const password = process.env.ADMIN_PASSWORD;
-  if (password) {
-    const row = db.prepare('SELECT id FROM admins WHERE username = ?').get(username);
-    if (!row) {
-      const hash = await bcrypt.hash(password, 10);
-      db.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)').run(username, hash);
-      console.log('Admin user seeded:', username);
-    } else {
-      console.log('Admin already exists:', username);
+  try {
+    const username = process.env.ADMIN_USERNAME || 'admin';
+    const password = process.env.ADMIN_PASSWORD;
+    if (password && MONGO_URI) {
+      await mongoose.connection.asPromise();
+      const existingAdmin = await Admin.findOne({ username });
+      if (!existingAdmin) {
+        const hash = await bcrypt.hash(password, 10);
+        await Admin.create({ username, password_hash: hash });
+        console.log('Admin user seeded:', username);
+      } else {
+        console.log('Admin already exists:', username);
+      }
     }
-  } else {
-    console.log('No ADMIN_PASSWORD in env — skip seeding admin');
+  } catch (err) {
+    console.error('Error seeding admin:', err);
   }
 })();
 
 // Helpers
 function generateToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' }); // shorter expiry
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
 }
 
 function authMiddleware(req, res, next) {
@@ -126,9 +122,8 @@ function authMiddleware(req, res, next) {
   if (!auth) return res.status(401).json({ error: 'Unauthorized' });
   const parts = auth.split(' ');
   if (parts.length !== 2) return res.status(401).json({ error: 'Unauthorized' });
-  const token = parts[1];
   try {
-    const data = jwt.verify(token, JWT_SECRET);
+    const data = jwt.verify(parts[1], JWT_SECRET);
     req.admin = data;
     next();
   } catch (e) {
@@ -139,9 +134,23 @@ function authMiddleware(req, res, next) {
 // Routes
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-app.get('/api/products', (req, res) => {
-  const rows = db.prepare('SELECT * FROM products ORDER BY created_at DESC').all();
-  res.json(rows);
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find().sort({ created_at: -1 });
+    // Transform _id to id for frontend compatibility
+    const formatted = products.map(p => ({
+      id: p._id,
+      title: p.title,
+      price: p.price,
+      image: p.image,
+      desc: p.desc,
+      varieties: p.varieties,
+      category: p.category
+    }));
+    res.json(formatted);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
 });
 
 app.post('/api/orders',
@@ -155,10 +164,20 @@ app.post('/api/orders',
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     const { product, price, name, phone, address, method, txnid } = req.body;
-    const stmt = db.prepare(`INSERT INTO orders (product, price, customer_name, phone, address, payment_method, txnid) VALUES (?, ?, ?, ?, ?, ?, ?)`);
-    const info = stmt.run(product, price, name, phone, address, method || '', txnid || '');
-    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(info.lastInsertRowid);
-    res.json({ success: true, order });
+    try {
+      const newOrder = await Order.create({
+        product,
+        price,
+        customer_name: name,
+        phone,
+        address,
+        payment_method: method || '',
+        txnid: txnid || ''
+      });
+      res.json({ success: true, order: newOrder });
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to place order' });
+    }
   }
 );
 
@@ -167,32 +186,49 @@ app.post('/api/admin/login',
   body('password').notEmpty(),
   async (req, res) => {
     const { username, password } = req.body;
-    const admin = db.prepare('SELECT * FROM admins WHERE username = ?').get(username);
-    if (!admin) return res.status(401).json({ error: 'Invalid credentials' });
-    const ok = await bcrypt.compare(password, admin.password_hash);
-    if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
-    const token = generateToken({ id: admin.id, username: admin.username });
-    res.json({ token });
+    try {
+      const admin = await Admin.findOne({ username });
+      if (!admin) return res.status(401).json({ error: 'Invalid credentials' });
+      const ok = await bcrypt.compare(password, admin.password_hash);
+      if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+      const token = generateToken({ id: admin._id, username: admin.username });
+      res.json({ token });
+    } catch (err) {
+      res.status(500).json({ error: 'Login server error' });
+    }
   }
 );
 
-// Protected admin routes
-app.get('/api/admin/orders', authMiddleware, (req, res) => {
-  const rows = db.prepare('SELECT * FROM orders ORDER BY created_at DESC').all();
-  res.json(rows);
+app.get('/api/admin/orders', authMiddleware, async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ created_at: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
 });
 
 app.post('/api/admin/products', authMiddleware,
   body('title').notEmpty(),
   body('price').notEmpty(),
-  (req, res) => {
+  async (req, res) => {
     const { title, price, image, desc, varieties, category } = req.body;
-    const info = db.prepare(`INSERT INTO products (title, price, image, desc, varieties, category) VALUES (?, ?, ?, ?, ?, ?)`).run(title, price, image||'', desc||'', varieties||'', category||'');
-    const prod = db.prepare('SELECT * FROM products WHERE id = ?').get(info.lastInsertRowid);
-    res.json({ success: true, product: prod });
+    try {
+      const newProd = await Product.create({
+        title,
+        price,
+        image: image || '',
+        desc: desc || '',
+        varieties: varieties || '',
+        category: category || ''
+      });
+      res.json({ success: true, product: newProd });
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to add product' });
+    }
   }
 );
 
 app.listen(PORT, () => {
-  console.log(`ShopEasy backend running on http://localhost:${PORT}`);
+  console.log(`ShopEasy backend running on port ${PORT}`);
 });
