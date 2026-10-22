@@ -108,7 +108,7 @@
         .status-box.success { background: #ecfdf5; border-color: #b7ebc5; color: #166534; }
     </style>
 </head>
-<body>
+    <body>
     <header>
         <a href="#" class="logo"><i class="fa-solid fa-bag-shopping"></i> Shop<span>Easy</span></a>
         <div class="header-actions">
@@ -213,7 +213,7 @@
     </footer>
 
     <script>
-        const API_BASE = window.location.origin; // Dynamically handles relative API URL
+        const API_BASE = window.location.origin;
 
         const state = {
             products: [],
@@ -328,4 +328,171 @@
         function saveCart() {
             localStorage.setItem('shopeasy-cart', JSON.stringify(state.cart));
             updateCartCount();
- 
+        }
+
+        function updateCartCount() {
+            const count = state.cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cartCount').textContent = count;
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            if (!state.cart.length) {
+                container.innerHTML = '<div class="cart-empty">আপনার কার্ট খালি</div>';
+                document.getElementById('cartTotal').textContent = 'মোট: ৳0';
+                return;
+            }
+
+            let total = 0;
+            container.innerHTML = state.cart.map(item => {
+                total += Number(item.price) * item.qty;
+                return `
+                    <div class="cart-item">
+                        <img src="${item.image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80'}">
+                        <div class="cart-item-info">
+                            <div class="cart-item-title">${item.title}</div>
+                            <div style="color:#ff6b6b; font-weight:bold;">৳ ${item.price}</div>
+                        </div>
+                        <div class="cart-item-controls">
+                            <span>x${item.qty}</span>
+                            <button onclick="removeFromCart('${item.id}')" style="color:red; background:none; border:none; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('cartTotal').textContent = `মোট: ৳${total}`;
+        }
+
+        function removeFromCart(id) {
+            state.cart = state.cart.filter(item => String(item.id) !== String(id));
+            saveCart();
+            renderCart();
+        }
+
+        async function checkoutCart() {
+            if (!state.cart.length) {
+                alert('আপনার কার্ট খালি!');
+                return;
+            }
+            alert('একটি প্রডাক্ট সিলেক্ট করে সরাসরি নাম, ফোন ও ঠিকানা দিয়ে অর্ডার করুন।');
+        }
+
+        async function submitOrder() {
+            const name = document.getElementById('customerName').value;
+            const phone = document.getElementById('customerPhone').value;
+            const address = document.getElementById('customerAddress').value;
+
+            if (!name || !phone || !address) {
+                alert('দয়া করে আপনার নাম, ফোন এবং ঠিকানা সঠিকভাবে দিন।');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product: `${state.selectedProduct.title} (${document.getElementById('viewVariety').value}) x${state.quantity}`,
+                        price: Number(state.selectedProduct.price) * state.quantity,
+                        name, phone, address
+                    })
+                });
+
+                if (res.ok) {
+                    alert('অর্ডার সফলভাবে জমা দেওয়া হয়েছে!');
+                    closeModal('productViewModal');
+                } else {
+                    alert('অর্ডার জমা দেওয়া সম্ভব হয়নি।');
+                }
+            } catch (err) {
+                alert('Error submitting order.');
+            }
+        }
+
+        function openAdminModal() {
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tab === 'login') {
+                if (event && event.target) event.target.classList.add('active');
+                document.getElementById('adminLoginTab').classList.add('active');
+            } else if (tab === 'orders') {
+                if (event && event.target) event.target.classList.add('active');
+                document.getElementById('adminOrdersTab').classList.add('active');
+                fetchAdminOrders();
+            }
+        }
+
+        async function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Login failed');
+
+                localStorage.setItem('shopeasy-token', data.token);
+                alert('লগইন সফল হয়েছে!');
+
+                document.querySelectorAll('.admin-tab-btn')[1].classList.add('active');
+                document.querySelectorAll('.admin-tab-btn')[0].classList.remove('active');
+                document.getElementById('adminLoginTab').classList.remove('active');
+                document.getElementById('adminOrdersTab').classList.add('active');
+                fetchAdminOrders();
+            } catch (err) {
+                alert('লগইন ব্যর্থ: ' + err.message);
+            }
+        }
+
+        async function fetchAdminOrders() {
+            const token = localStorage.getItem('shopeasy-token');
+            if (!token) {
+                alert('দয়া করে প্রথমে লগইন করুন।');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/admin/orders`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const orders = await res.json();
+                const list = document.getElementById('ordersList');
+
+                if (!Array.isArray(orders) || !orders.length) {
+                    list.innerHTML = '<p style="padding:10px; color:#666;">কোনো অর্ডার পাওয়া যায়নি।</p>';
+                    return;
+                }
+
+                list.innerHTML = orders.map(o => `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <span><b>#${o._id || o.id}</b> - ${o.customer_name}</span>
+                            <span class="order-price">৳ ${o.price}</span>
+                        </div>
+                        <div class="order-body">
+                            <p><b>প্রডাক্ট:</b> ${o.product}</p>
+                            <p><b>ফোন:</b> ${o.phone}</p>
+                            <p><b>ঠিকানা:</b> ${o.address}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Failed to fetch orders:', err);
+            }
+        }
+
+        fetchProducts();
+    </script>
+</body>
+        </html>
+    
