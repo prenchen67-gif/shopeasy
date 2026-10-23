@@ -60,15 +60,17 @@ const productSchema = new mongoose.Schema({
 
 
 const orderSchema = new mongoose.Schema({
-  product: String,
-  price: String,
-  customer_name: String,
-  phone: String,
-  address: String,
-  payment_method: String,
-  txnid: String,
-  created_at: { type: Date, default: Date.now }
-});
+    customerName: { type: String, required: true },
+    productName: { type: String, required: true },
+    price: { type: Number, required: true },
+    address: { type: String, required: true },
+    txnId: { type: String, required: true },
+    phone: { type: String, required: true }, // Customer Phone Number
+    status: { type: String, default: 'Pending' }
+}, { timestamps: true });
+
+const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
+
 
 const Admin = mongoose.model('Admin', adminSchema);
 const Product = mongoose.model('Product', productSchema);
