@@ -8,8 +8,8 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; display: flex; }
         .sidebar { width: 250px; background-color: #2c3e50; color: #fff; height: 100vh; padding: 20px; box-sizing: border-box; position: fixed; }
         .sidebar h2 { color: #ff6b6b; font-size: 20px; margin-bottom: 20px; }
-        .sidebar a { display: block; color: #bdc3c7; padding: 10px 0; text-decoration: none; border-bottom: 1px solid #34495e; }
-        .sidebar a:hover { color: #fff; }
+        .sidebar a { display: block; color: #bdc3c7; padding: 10px 0; text-decoration: none; border-bottom: 1px solid #34495e; cursor: pointer; transition: 0.3s; }
+        .sidebar a:hover, .sidebar a.active { color: #fff; padding-left: 5px; font-weight: bold; }
         .main-content { margin-left: 250px; flex: 1; padding: 30px; }
         .card { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 30px; }
         .form-group { margin-bottom: 15px; }
@@ -24,6 +24,9 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background-color: #f8f9fa; color: #333; }
+
+        /* সেকশন শো/হাইড করার ক্লাস */
+        .admin-section { display: none; }
     </style>
 </head>
 <body>
@@ -31,8 +34,8 @@
     <!-- সাইডবার -->
     <div class="sidebar">
         <h2>অ্যাডমিন প্যানেল</h2>
-        <a href="#orders-section">অর্ডার তালিকা</a>
-        <a href="#add-product">প্রোডাক্ট যোগ করুন</a>
+        <a href="#" id="menu-orders" onclick="switchSection('orders', event)">অর্ডার তালিকা</a>
+        <a href="#" id="menu-products" onclick="switchSection('products', event)">প্রোডাক্ট যোগ করুন</a>
         <a href="/admin.html">লগ আউট</a>
     </div>
 
@@ -40,7 +43,7 @@
     <div class="main-content">
         
         <!-- ১. অর্ডার তালিকা সেকশন -->
-        <div class="card" id="orders-section">
+        <div class="card admin-section" id="orders-section">
             <h2>গ্রাহকদের অর্ডার তালিকা</h2>
             <table>
                 <thead>
@@ -49,7 +52,7 @@
                         <th>গ্রাহকের নাম</th>
                         <th>প্রোডাক্ট</th>
                         <th>মূল্য</th>
-                        <th>সাইজ</th> <!-- নতুন সাইজ কলাম -->
+                        <th>সাইজ</th>
                         <th>এড্রেস (Address)</th>
                         <th>TXNID</th>
                         <th>PHONE NUMBER</th>
@@ -58,14 +61,14 @@
                 </thead>
                 <tbody id="orderTableBody">
                     <tr>
-                        <td colspan="8" style="text-align: center; color: #777;">লোড হচ্ছে...</td>
+                        <td colspan="9" style="text-align: center; color: #777;">লোড হচ্ছে...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
         <!-- ২. প্রোডাক্ট যোগ করার ফর্ম সেকশন -->
-        <div class="card" id="add-product">
+        <div class="card admin-section" id="add-product">
             <h2>নতুন প্রোডাক্ট যোগ করুন</h2>
             <form id="productForm">
                 
@@ -119,6 +122,29 @@
     </div>
 
     <script>
+        // সেকশন সুইচ করার লজিক
+        function switchSection(sectionId, event) {
+            if (event) event.preventDefault();
+
+            // দুইটা সেকশনই বন্ধ করে দেওয়া
+            document.getElementById('orders-section').style.display = 'none';
+            document.getElementById('add-product').style.display = 'none';
+
+            // মেনু থেকে অ্যাক্টিভ ক্লাস রিমুভ করা
+            document.getElementById('menu-orders').classList.remove('active');
+            document.getElementById('menu-products').classList.remove('active');
+
+            // সিলেক্ট করা সেকশনটি চালু করা
+            if (sectionId === 'orders') {
+                document.getElementById('orders-section').style.display = 'block';
+                document.getElementById('menu-orders').classList.add('active');
+                loadOrders(); // অর্ডার রিফ্রেশ করা
+            } else if (sectionId === 'products') {
+                document.getElementById('add-product').style.display = 'block';
+                document.getElementById('menu-products').classList.add('active');
+            }
+        }
+
         // ক্যাটাগরি অনুযায়ী সাইজ অপশন শো/হাইড করার ফাংশন
         function toggleSizeOption() {
             const category = document.getElementById('productCategory').value;
@@ -188,7 +214,7 @@
                 tableBody.innerHTML = '';
 
                 if (orders.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #777;">কোনো নতুন অর্ডার নেই</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: #777;">কোনো নতুন অর্ডার নেই</td></tr>`;
                     return;
                 }
 
@@ -210,15 +236,14 @@
                 });
             } catch (error) {
                 console.error('Error loading orders:', error);
-                document.getElementById('orderTableBody').innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">অর্ডার লোড করতে সমস্যা হয়েছে</td></tr>`;
+                document.getElementById('orderTableBody').innerHTML = `<tr><td colspan="9" style="text-align: center; color: red;">অর্ডার লোড করতে সমস্যা হয়েছে</td></tr>`;
             }
         }
 
-        // পেজ লোড হলেই অর্ডার লিস্ট লোড হবে
+        // বাই ডিফল্ট 'অর্ডার তালিকা' ওপেন হবে
         window.onload = function() {
-            loadOrders();
+            switchSection('orders');
         };
     </script>
 </body>
-                                   </html>
-                                   
+</html>
