@@ -50,14 +50,14 @@ const adminSchema = new mongoose.Schema({
 });
 
 const productSchema = new mongoose.Schema({
-  title: String,
-  price: String,
-  image: String,
-  desc: String,
-  varieties: String,
-  category: String,
-  created_at: { type: Date, default: Date.now }
-});
+    name: { type: String, required: true },
+    category: { type: String, required: true },
+    sizes: [{ type: String }], // Array for sizes like ['S', 'M', 'L']
+    price: { type: Number, required: true },
+    image: { type: String, required: true },
+    description: { type: String }
+}, { timestamps: true });
+
 
 const orderSchema = new mongoose.Schema({
   product: String,
@@ -117,22 +117,26 @@ app.get('/api/health', (req, res) => res.json({ ok: true, timestamp: new Date() 
 
 // Get Products
 app.get('/api/products', async (req, res) => {
-  try {
-    const products = await Product.find().sort({ created_at: -1 });
-    const formatted = products.map(p => ({
-      id: p._id,
-      title: p.title,
-      price: p.price,
-      image: p.image,
-      desc: p.desc,
-      varieties: p.varieties,
-      category: p.category
-    }));
-    res.json(formatted);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch products' });
-  }
+app.post('/api/products', async (req, res) => {
+    try {
+        const { name, category, sizes, price, image, description } = req.body;
+        
+        const newProduct = new Product({
+            name,
+            category,
+            sizes,
+            price,
+            image,
+            description
+        });
+
+        await newProduct.save();
+        res.status(201).json({ message: 'Product successfully added!', product: newProduct });
+    } catch (error) {
+        res.status(500).json({ message: 'Error adding product', error: error.message });
+    }
 });
+                              
 
 // Submit Order
 app.post('/api/orders', async (req, res) => {
