@@ -1,109 +1,150 @@
-<div class="card" id="add-product">
-    <h2>নতুন প্রোডাক্ট যোগ করুন</h2>
-    <form id="productForm">
-        <div class="form-group">
-            <label for="productName">প্রোডাক্টের নাম</label>
-            <input type="text" id="productName" required placeholder="যেমন: টি-শার্ট">
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাডমিন ড্যাশবোর্ড</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; display: flex; }
+        .sidebar { width: 250px; background-color: #2c3e50; color: #fff; height: 100vh; padding: 20px; box-sizing: border-box; position: fixed; }
+        .sidebar h2 { color: #ff6b6b; font-size: 20px; margin-bottom: 20px; }
+        .sidebar a { display: block; color: #bdc3c7; padding: 10px 0; text-decoration: none; border-bottom: 1px solid #34495e; }
+        .sidebar a:hover { color: #fff; }
+        .main-content { margin-left: 250px; flex: 1; padding: 30px; }
+        .card { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        .btn { background-color: #27ae60; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; }
+        .btn:hover { background-color: #219150; }
+        .checkbox-group { display: flex; gap: 15px; margin-top: 5px; }
+        .checkbox-group label { font-weight: normal; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- সাইডবার থিম -->
+    <div class="sidebar">
+        <h2>অ্যাডমিন প্যানেল</h2>
+        <a href="#add-product">প্রোডাক্ট যোগ করুন</a>
+        <a href="#product-list">প্রোডাক্ট তালিকা</a>
+        <a href="/admin.html">লগ আউট</a>
+    </div>
+
+    <!-- মেইন কন্টেন্ট -->
+    <div class="main-content">
+        <div class="card" id="add-product">
+            <h2>নতুন প্রোডাক্ট যোগ করুন</h2>
+            <form id="productForm">
+                
+                <div class="form-group">
+                    <label for="productName">প্রোডাক্টের নাম</label>
+                    <input type="text" id="productName" required placeholder="যেমন: টি-শার্ট">
+                </div>
+
+                <!-- ক্যাটাগরি সিলেক্ট -->
+                <div class="form-group">
+                    <label for="productCategory">ক্যাটাগরি</label>
+                    <select id="productCategory" required onchange="toggleSizeOption()">
+                        <option value="">ক্যাটাগরি সিলেক্ট করুন</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Gadgets">Gadgets</option>
+                    </select>
+                </div>
+
+                <!-- ডাইনামিক সাইজ (Fashion সিলেক্ট করলেই দেখাবে) -->
+                <div class="form-group" id="sizeGroup" style="display: none;">
+                    <label>সাইজ সিলেক্ট করুন (Fashion Category-র জন্য)</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="sizes" value="S"> S</label>
+                        <label><input type="checkbox" name="sizes" value="M"> M</label>
+                        <label><input type="checkbox" name="sizes" value="L"> L</label>
+                        <label><input type="checkbox" name="sizes" value="XL"> XL</label>
+                        <label><input type="checkbox" name="sizes" value="XXL"> XXL</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="productPrice">মূল্য (টাকা)</label>
+                    <input type="number" id="productPrice" required placeholder="যেমন: ৫০০">
+                </div>
+
+                <div class="form-group">
+                    <label for="productImage">ছবি (Image URL)</label>
+                    <input type="url" id="productImage" required placeholder="https://example.com/image.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label for="productDescription">বিবরণ</label>
+                    <textarea id="productDescription" rows="4" placeholder="প্রোডাক্টের বিস্তারিত তথ্য..."></textarea>
+                </div>
+
+                <button type="submit" class="btn">প্রোডাক্ট সেভ করুন</button>
+            </form>
         </div>
+    </div>
 
-        <!-- Category Dropdown -->
-        <div class="form-group">
-            <label for="productCategory">ক্যাটাগরি</label>
-            <select id="productCategory" required onchange="toggleSizeOption()">
-                <option value="">ক্যাটাগরি সিলেক্ট করুন</option>
-                <option value="Fashion">Fashion</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Gadgets">Gadgets</option>
-            </select>
-        </div>
-
-        <!-- Dynamic Size Option (Fashion select korlei dekhabe) -->
-        <div class="form-group" id="sizeGroup" style="display: none;">
-            <label>সাইজ সিলেক্ট করুন (Fashion Category-র জন্য)</label>
-            <div style="display: flex; gap: 10px; margin-top: 5px;">
-                <label><input type="checkbox" name="sizes" value="S"> S</label>
-                <label><input type="checkbox" name="sizes" value="M"> M</label>
-                <label><input type="checkbox" name="sizes" value="L"> L</label>
-                <label><input type="checkbox" name="sizes" value="XL"> XL</label>
-                <label><input type="checkbox" name="sizes" value="XXL"> XXL</label>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="productPrice">মূল্য (টাকা)</label>
-            <input type="number" id="productPrice" required placeholder="যেমন: ৫০০">
-        </div>
-        <div class="form-group">
-            <label for="productImage">ছবি (Image URL)</label>
-            <input type="url" id="productImage" required placeholder="https://example.com/image.jpg">
-        </div>
-        <div class="form-group">
-            <label for="productDescription">বিবরণ</label>
-            <textarea id="productDescription" rows="4" placeholder="প্রোডাক্টের বিস্তারিত তথ্য..."></textarea>
-        </div>
-        <button type="submit" class="btn">প্রোডাক্ট সেভ করুন</button>
-    </form>
-</div>
-
-<script>
-    // Category change hole size option show/hide korar function
-    function toggleSizeOption() {
-        const category = document.getElementById('productCategory').value;
-        const sizeGroup = document.getElementById('sizeGroup');
-        
-        if (category === 'Fashion') {
-            sizeGroup.style.display = 'block';
-        } else {
-            sizeGroup.style.display = 'none';
-            // Size checkboxes reset
-            document.querySelectorAll('input[name="sizes"]').forEach(cb => cb.checked = false);
-        }
-    }
-
-    // Submit handler
-    document.getElementById('productForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById('productName').value;
-        const category = document.getElementById('productCategory').value;
-        const price = document.getElementById('productPrice').value;
-        const image = document.getElementById('productImage').value;
-        const description = document.getElementById('productDescription').value;
-
-        // Selected sizes collection
-        const selectedSizes = [];
-        if (category === 'Fashion') {
-            document.querySelectorAll('input[name="sizes"]:checked').forEach(cb => {
-                selectedSizes.push(cb.value);
-            });
-        }
-
-        try {
-            const response = await fetch('/api/products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    name, 
-                    category, 
-                    sizes: selectedSizes, 
-                    price, 
-                    image, 
-                    description 
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                alert('Product successfully saved to MongoDB!');
-                document.getElementById('productForm').reset();
-                toggleSizeOption(); // Reset size group visibility
+    <script>
+        // ক্যাটাগরি অনুযায়ী সাইজ অপশন শো/হাইড করার ফাংশন
+        function toggleSizeOption() {
+            const category = document.getElementById('productCategory').value;
+            const sizeGroup = document.getElementById('sizeGroup');
+            
+            if (category === 'Fashion') {
+                sizeGroup.style.display = 'block';
             } else {
-                alert('Failed to add product: ' + data.message);
+                sizeGroup.style.display = 'none';
+                document.querySelectorAll('input[name="sizes"]').forEach(cb => cb.checked = false);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Something went wrong!');
         }
-    });
-</script>
+
+        // ফর্ম সাবমিট হ্যান্ডলার
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('productName').value;
+            const category = document.getElementById('productCategory').value;
+            const price = document.getElementById('productPrice').value;
+            const image = document.getElementById('productImage').value;
+            const description = document.getElementById('productDescription').value;
+
+            const selectedSizes = [];
+            if (category === 'Fashion') {
+                document.querySelectorAll('input[name="sizes"]:checked').forEach(cb => {
+                    selectedSizes.push(cb.value);
+                });
+            }
+
+            try {
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        name, 
+                        category, 
+                        sizes: selectedSizes, 
+                        price, 
+                        image, 
+                        description 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('প্রোডাক্ট সফলভাবে জমা হয়েছে!');
+                    document.getElementById('productForm').reset();
+                    toggleSizeOption();
+                } else {
+                    alert('প্রোডাক্ট যোগ করতে সমস্যা হয়েছে: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('সার্ভারে সমস্যা হয়েছে!');
+            }
+        });
+    </script>
+</body>
+    </html>
+    
