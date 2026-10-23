@@ -179,7 +179,27 @@ app.post('/api/orders', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: 'Failed to place order', details: err.message });
     }
+  });
+
+  // এই অংশটি POST /api/orders এর ঠিক নিচে বসাবেন
+app.put('/api/orders/:id', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const updatedOrder = await Order.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        );
+        if (!updatedOrder) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        res.json({ success: true, order: updatedOrder });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update order status', details: err.message });
+    }
 });
+  
+
 
 // --- ADMIN ROUTES ---
 
