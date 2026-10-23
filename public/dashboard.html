@@ -49,6 +49,7 @@
                         <th>গ্রাহকের নাম</th>
                         <th>প্রোডাক্ট</th>
                         <th>মূল্য</th>
+                        <th>সাইজ</th> <!-- নতুন সাইজ কলাম -->
                         <th>এড্রেস (Address)</th>
                         <th>TXNID</th>
                         <th>PHONE NUMBER</th>
@@ -198,6 +199,7 @@
                             <td>${order.customerName}</td>
                             <td>${order.productName}</td>
                             <td>${order.price} টাকা</td>
+                            <td><span style="background: #eef2f3; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${order.size || 'N/A'}</span></td>
                             <td>${order.address}</td>
                             <td><strong>${order.txnId}</strong></td>
                             <td>${order.phone}</td>
