@@ -60,6 +60,7 @@ const orderSchema = new mongoose.Schema({
     customerName: { type: String, required: true },
     productName: { type: String, required: true },
     price: { type: Number, required: true },
+    size: { type: String }, // কাস্টমারের সিলেক্ট করা সাইজ রাখার জন্য
     address: { type: String, required: true },
     txnId: { type: String, required: true },
     phone: { type: String, required: true },
