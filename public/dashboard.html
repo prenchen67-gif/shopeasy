@@ -188,6 +188,44 @@
                 alert('সার্ভারে সমস্যা হয়েছে!');
             }
         });
+        async function loadOrders() {
+    try {
+        const response = await fetch('/api/orders');
+        const orders = await response.json();
+        
+        const tableBody = document.getElementById('orderTableBody');
+        tableBody.innerHTML = '';
+
+        if (orders.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #777;">কোনো নতুন অর্ডার নেই</td></tr>`;
+            return;
+        }
+
+        orders.forEach((order, index) => {
+            const row = `
+                <tr>
+                    <td>#${index + 1}</td>
+                    <td>${order.customerName}</td>
+                    <td>${order.productName}</td>
+                    <td>${order.price} টাকা</td>
+                    <td>${order.address}</td>
+                    <td><strong>${order.txnId}</strong></td>
+                    <td>${order.phone}</td>
+                    <td><span style="color: orange; font-weight: bold;">${order.status}</span></td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error('Error loading orders:', error);
+    }
+}
+
+// Page load holei order list load hobe
+window.onload = function() {
+    loadOrders();
+};
+                    
     </script>
 </body>
 </html>
