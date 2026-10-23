@@ -8,8 +8,6 @@ const mongoose = require('mongoose');
 const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { body, validationResult } = require('express-validator');
-const crypto = require('crypto');
 
 const app = express();
 
@@ -58,23 +56,20 @@ const productSchema = new mongoose.Schema({
     description: { type: String }
 }, { timestamps: true });
 
-
 const orderSchema = new mongoose.Schema({
     customerName: { type: String, required: true },
     productName: { type: String, required: true },
     price: { type: Number, required: true },
     address: { type: String, required: true },
     txnId: { type: String, required: true },
-    phone: { type: String, required: true }, // Customer Phone Number
+    phone: { type: String, required: true },
     status: { type: String, default: 'Pending' }
 }, { timestamps: true });
 
+// Safe Model Compilation (Prevents Overwrite Error)
+const Admin = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
-
-
-const Admin = mongoose.model('Admin', adminSchema);
-const Product = mongoose.model('Product', productSchema);
-const Order = mongoose.model('Order', orderSchema);
 
 // Auto Seed Default Admin User
 async function seedAdmin() {
@@ -114,11 +109,20 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// --- PUBLIC ROUTES ---
+// --- PUBLIC & DASHBOARD ROUTES ---
 app.get('/api/health', (req, res) => res.json({ ok: true, timestamp: new Date() }));
 
-// Get Products
+// 1. Get All Products
 app.get('/api/products', async (req, res) => {
+    try {
+        const products = await Product.find().sort({ createdAt: -1 });
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching products', error: error.message });
+    }
+});
+
+// 2. Add New Product (Dashboard API)
 app.post('/api/products', async (req, res) => {
     try {
         const { name, category, sizes, price, image, description } = req.body;
@@ -138,28 +142,41 @@ app.post('/api/products', async (req, res) => {
         res.status(500).json({ message: 'Error adding product', error: error.message });
     }
 });
-                              
 
-// Submit Order
+// 3. Get All Orders (For Dashboard Table)
+app.get('/api/orders', async (req, res) => {
+    try {
+        const orders = await Order.find().sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch orders', details: err.message });
+    }
+});
+
+// 4. Submit Order (From Website)
 app.post('/api/orders', async (req, res) => {
-  const { product, price, name, phone, address, method, txnid } = req.body;
-  if (!name || !phone || !address) {
-    return res.status(400).json({ error: 'Missing required customer information' });
-  }
-  try {
-    const newOrder = await Order.create({
-      product,
-      price,
-      customer_name: name,
-      phone,
-      address,
-      payment_method: method || 'Cash on Delivery',
-      txnid: txnid || ''
-    });
-    res.json({ success: true, order: newOrder });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to place order' });
-  }
+    try {
+        const { customerName, productName, price, address, txnId, phone } = req.body;
+        
+        if (!customerName || !phone || !address || !productName) {
+            return res.status(400).json({ error: 'Missing required customer information' });
+        }
+
+        const newOrder = new Order({
+            customerName,
+            productName,
+            price,
+            address,
+            txnId: txnId || '',
+            phone,
+            status: 'Pending'
+        });
+
+        await newOrder.save();
+        res.json({ success: true, order: newOrder });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to place order', details: err.message });
+    }
 });
 
 // --- ADMIN ROUTES ---
@@ -184,34 +201,13 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
-// Get Admin Orders
+// Get Admin Orders (Protected)
 app.get('/api/admin/orders', authMiddleware, async (req, res) => {
   try {
-    const orders = await Order.find().sort({ created_at: -1 });
+    const orders = await Order.find().sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch orders' });
-  }
-});
-
-// Add New Product (Admin)
-app.post('/api/admin/products', authMiddleware, async (req, res) => {
-  const { title, price, image, desc, varieties, category } = req.body;
-  if (!title || !price) {
-    return res.status(400).json({ error: 'Title and Price are required' });
-  }
-  try {
-    const newProd = await Product.create({
-      title,
-      price,
-      image: image || '',
-      desc: desc || '',
-      varieties: varieties || 'Default',
-      category: category || 'all'
-    });
-    res.json({ success: true, product: newProd });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to add product' });
   }
 });
 
@@ -223,3 +219,4 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`ShopEasy backend running on port ${PORT}`);
 });
+                        
