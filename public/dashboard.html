@@ -219,21 +219,29 @@
                 }
 
                 orders.forEach((order, index) => {
-                    const row = `
-                        <tr>
-                            <td>#${index + 1}</td>
-                            <td>${order.customerName}</td>
-                            <td>${order.productName || order.title || 'N/A'}</td>
-                            <td>${order.price} টাকা</td>
-                            <td><span style="background: #eef2f3; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${order.size || 'N/A'}</span></td>
-                            <td>${order.address}</td>
-                            <td><strong>${order.txnId}</strong></td>
-                            <td>${order.phone}</td>
-                            <td><span style="color: orange; font-weight: bold;">${order.status}</span></td>
-                        </tr>
-                    `;
-                    tableBody.innerHTML += row;
-                });
+    const row = `
+        <tr>
+            <td>#${index + 1}</td>
+            <td>${order.customerName}</td>
+            <td>${order.productName || order.title || 'N/A'}</td>
+            <td>${order.price} টাকা</td>
+            <td><span style="background: #eef2f3; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${order.size || 'N/A'}</span></td>
+            <td>${order.address}</td>
+            <td><strong>${order.txnId}</strong></td>
+            <td>${order.phone}</td>
+            <td>
+                <select onchange="updateOrderStatus('${order._id}', this.value)" style="padding: 5px; border-radius: 4px; font-weight: bold; background: #fff;">
+                    <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                    <option value="Active" ${order.status === 'Active' ? 'selected' : ''}>Active</option>
+                    <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                    <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                </select>
+            </td>
+        </tr>
+    `;
+    tableBody.innerHTML += row;
+});
+                                                          
             } catch (error) {
                 console.error('Error loading orders:', error);
                 document.getElementById('orderTableBody').innerHTML = `<tr><td colspan="9" style="text-align: center; color: red;">অর্ডার লোড করতে সমস্যা হয়েছে</td></tr>`;
@@ -244,6 +252,27 @@
         window.onload = function() {
             switchSection('orders');
         };
+       
+        async function updateOrderStatus(orderId, newStatus) {
+    try {
+        const response = await fetch(`/api/orders/${orderId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            alert('Order status successfully updated to ' + newStatus);
+        } else {
+            alert('Failed to update status: ' + (data.error || data.message));
+        }
+    } catch (err) {
+        console.error('Error updating status:', err);
+        alert('Server error while updating status!');
+    }
+    }
+        
     </script>
 </body>
     </html>
