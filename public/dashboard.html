@@ -11,7 +11,7 @@
         .sidebar a { display: block; color: #bdc3c7; padding: 10px 0; text-decoration: none; border-bottom: 1px solid #34495e; }
         .sidebar a:hover { color: #fff; }
         .main-content { margin-left: 250px; flex: 1; padding: 30px; }
-        .card { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 30px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
@@ -19,20 +19,63 @@
         .btn:hover { background-color: #219150; }
         .checkbox-group { display: flex; gap: 15px; margin-top: 5px; }
         .checkbox-group label { font-weight: normal; cursor: pointer; }
+        
+        /* টেবিল স্টাইল (অর্ডার লিস্টের জন্য) */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f9fa; color: #333; }
     </style>
 </head>
 <body>
 
-    <!-- সাইডবার থিম -->
+    <!-- সাইডবার -->
     <div class="sidebar">
         <h2>অ্যাডমিন প্যানেল</h2>
+        <a href="#orders-section">অর্ডার তালিকা</a>
         <a href="#add-product">প্রোডাক্ট যোগ করুন</a>
-        <a href="#product-list">প্রোডাক্ট তালিকা</a>
         <a href="/admin.html">লগ আউট</a>
     </div>
 
     <!-- মেইন কন্টেন্ট -->
     <div class="main-content">
+        
+    
+        <!-- ১. অর্ডার তালিকা সেকশন -->
+<div class="card" id="orders-section">
+    <h2>গ্রাহকদের অর্ডার তালিকা</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>অর্ডার আইডি</th>
+                <th>গ্রাহকের নাম</th>
+                <th>প্রোডাক্ট</th>
+                <th>মূল্য</th>
+                <th>এড্রেস (Address)</th>
+                <th>TXNID</th>
+                <th>PHONE (number)</th>
+                <th>স্ট্যাটাস</th>
+            </tr>
+        </thead>
+        <tbody id="orderTableBody">
+            <!-- Sample Data or Dynamic Data from Database -->
+            <tr>
+                <td>#101</td>
+                <td>Md. Rahim</td>
+                <td>টি-শার্ট (Size: L)</td>
+                <td>৫০০ টাকা</td>
+                <td>ধানমন্ডি, ঢাকা</td>
+                <td><strong>BKA1234567</strong></td>
+                <td>01572014498</td>
+                <td><span style="color: orange; font-weight: bold;">Pending</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+        
+        
+        </div>
+
+        <!-- ২. প্রোডাক্ট যোগ করার ফর্ম সেকশন -->
         <div class="card" id="add-product">
             <h2>নতুন প্রোডাক্ট যোগ করুন</h2>
             <form id="productForm">
@@ -83,6 +126,7 @@
                 <button type="submit" class="btn">প্রোডাক্ট সেভ করুন</button>
             </form>
         </div>
+
     </div>
 
     <script>
@@ -99,7 +143,7 @@
             }
         }
 
-        // ফর্ম সাবমিট হ্যান্ডলার
+        // ফর্ম সাবমিট হ্যান্ডলার (প্রোডাক্ট সেভ করার জন্য)
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -146,5 +190,4 @@
         });
     </script>
 </body>
-    </html>
-    
+</html>
