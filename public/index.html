@@ -167,32 +167,6 @@
         </div>
     </div>
 
-    <!-- Admin Modal -->
-    <div class="modal" id="adminModal">
-        <div class="modal-content admin-modal-wide">
-            <span class="close-btn" onclick="closeModal('adminModal')">&times;</span>
-            <div class="admin-tabs">
-                <button class="admin-tab-btn active" onclick="switchAdminTab('login')">Login</button>
-                <button class="admin-tab-btn" onclick="switchAdminTab('orders')">Orders</button>
-            </div>
-
-            <div id="adminLoginTab" class="tab-content active">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input id="adminUsername" type="text" placeholder="admin">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input id="adminPassword" type="password" placeholder="Password">
-                </div>
-                <button class="submit-btn" onclick="adminLogin()">Login</button>
-            </div>
-
-            <div id="adminOrdersTab" class="tab-content">
-                <div class="orders-list" id="ordersList"></div>
-            </div>
-        </div>
-    </div>
 
     <!-- Cart Drawer -->
     <div class="cart-drawer" id="cartDrawer">
@@ -209,7 +183,7 @@
 
     <footer>
         <div>© 2026 ShopEasy</div>
-        <button class="admin-footer-btn" onclick="openAdminModal()">Admin Panel</button>
+        
     </footer>
 
     <script>
