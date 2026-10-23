@@ -157,7 +157,7 @@ app.get('/api/orders', async (req, res) => {
 // 4. Submit Order (From Website)
 app.post('/api/orders', async (req, res) => {
     try {
-        const { customerName, productName, price, address, txnId, phone } = req.body;
+        const { customerName, productName, price, size, address, txnId, phone } = req.body;
         
         if (!customerName || !phone || !address || !productName) {
             return res.status(400).json({ error: 'Missing required customer information' });
@@ -167,6 +167,7 @@ app.post('/api/orders', async (req, res) => {
             customerName,
             productName,
             price,
+            size: size || 'N/A', // সাইজ না থাকলে N/A দেখাবে
             address,
             txnId: txnId || '',
             phone,
