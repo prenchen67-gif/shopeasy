@@ -26,8 +26,31 @@
             <label for="password">পাসওয়ার্ড</label>
             <input type="password" id="password">
         </div>
-        <button>লগইন</button>
+        <button id="login-btn">লগইন</button>
     </div>
+
+    <script>
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch(`${window.location.origin}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'লগইন ব্যর্থ হয়েছে');
+
+                localStorage.setItem('shopeasy-token', data.token);
+                alert('লগইন সফল হয়েছে!');
+                window.location.href = '/dashboard.html';
+            } catch (err) {
+                alert('ত্রুটি: ' + err.message);
+            }
+        });
+    </script>
 </body>
-  </html>
-      
+</html>
