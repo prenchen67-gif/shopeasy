@@ -101,18 +101,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="Price">মূল্য (টাকা)</label>
-                    <input type="number" id="Price" required placeholder="যেমন: ৫০০">
+                    <label for="price">মূল্য (টাকা)</label>
+                    <input type="number" id="price" required placeholder="যেমন: ৫০০">
                 </div>
 
                 <div class="form-group">
-                    <label for="Image">ছবি (Image URL)</label>
-                    <input type="url" id="Image" required placeholder="https://example.com/image.jpg">
+                    <label for="image">ছবি (Image URL)</label>
+                    <input type="url" id="image" required placeholder="https://example.com/image.jpg">
                 </div>
 
                 <div class="form-group">
-                    <label for="Desc">বিবরণ</label>
-                    <textarea id="Desc" rows="4" placeholder="প্রোডাক্টের বিস্তারিত তথ্য..."></textarea>
+                    <label for="desc">বিবরণ</label>
+                    <textarea id="desc" rows="4" placeholder="প্রোডাক্টের বিস্তারিত তথ্য..."></textarea>
                 </div>
 
                 <button type="submit" class="btn">প্রোডাক্ট সেভ করুন</button>
@@ -162,11 +162,11 @@
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const title = document.getElementById('producttitle').value;
+            const title = document.getElementById('title').value;
             const category = document.getElementById('productCategory').value;
-            const price = document.getElementById('productPrice').value;
-            const image = document.getElementById('productImage').value;
-            const desc = document.getElementById('productDesc').value;
+            const price = document.getElementById('price').value;
+            const image = document.getElementById('image').value;
+            const desc = document.getElementById('desc').value;
 
             const selectedSizes = [];
             if (category === 'Fashion') {
@@ -223,7 +223,7 @@
                         <tr>
                             <td>#${index + 1}</td>
                             <td>${order.customerName}</td>
-                            <td>${order.productName}</td>
+                            <td>${order.productName || order.title || 'N/A'}</td>
                             <td>${order.price} টাকা</td>
                             <td><span style="background: #eef2f3; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${order.size || 'N/A'}</span></td>
                             <td>${order.address}</td>
@@ -246,4 +246,5 @@
         };
     </script>
 </body>
-</html>
+    </html>
+    
