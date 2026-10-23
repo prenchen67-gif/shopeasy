@@ -387,36 +387,60 @@
         }
 
         async function submitOrder() {
-            const name = document.getElementById('customerName').value;
-            const phone = document.getElementById('customerPhone').value;
-            const address = document.getElementById('customerAddress').value;
+    if (!state.selectedProduct) return;
+    const customerName = document.getElementById('customerName').value.trim();
+    const phone = document.getElementById('customerPhone').value.trim();
+    const address = document.getElementById('customerAddress').value.trim();
+    
+    // ১. সাইজ এবং কালার ড্রপডাউন থেকে ভ্যালু নেওয়া
+    const sizeSelect = document.getElementById('viewVariety');
+    const size = sizeSelect ? sizeSelect.value : 'N/A';
 
-            if (!name || !phone || !address) {
-                alert('দয়া করে আপনার নাম, ফোন এবং ঠিকানা সঠিকভাবে দিন।');
-                return;
-            }
+    const colorSelect = document.getElementById('viewColor');
+    const color = colorSelect ? colorSelect.value : 'N/A';
 
-            try {
-                const res = await fetch(`${API_BASE}/api/orders`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        product: `${state.selectedProduct.title} (${document.getElementById('viewVariety').value}) x${state.quantity}`,
-                        price: Number(state.selectedProduct.price) * state.quantity,
-                        name, phone, address
-                    })
-                });
+    if (!customerName || !phone || !address) {
+        alert('দয়া করে নাম, ফোন এবং ঠিকানা পূরণ করুন।');
+        return;
+    }
 
-                if (res.ok) {
-                    alert('অর্ডার সফলভাবে জমা দেওয়া হয়েছে!');
-                    closeModal('productViewModal');
-                } else {
-                    alert('অর্ডার জমা দেওয়া সম্ভব হয়নি।');
-                }
-            } catch (err) {
-                alert('Error submitting order.');
-            }
+    // ২. সাইজ এবং কালার মিলিয়ে একটি স্ট্রিং তৈরি করা (যেমন: M / Color: Black)
+    const selectedVariant = `Size: ${size} | Color: ${color}`;
+
+    const orderData = {
+        customerName,
+        productName: state.selectedProduct.title,
+        size: selectedVariant, // সাইজ ও কালার একসাথে পাঠানো হচ্ছে
+        price: Number(state.selectedProduct.price) * Number(state.quantity),
+        address,
+        phone,
+        txnId: 'COD-' + Math.floor(100000 + Math.random() * 900000)
+    };
+
+    try {
+        const response = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert('অর্ডার সফলভাবে সম্পন্ন হয়েছে!');
+            closeModal('productViewModal');
+            // ইনপুট ফিল্ডগুলো ক্লিয়ার করে দেওয়া
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerAddress').value = '';
+        } else {
+            alert('অর্ডার করতে সমস্যা হয়েছে: ' + (result.error || result.message));
         }
+    } catch (err) {
+        console.error('Order error:', err);
+        alert('সার্ভারে সংযোগ স্থাপন করতে সমস্যা হচ্ছে!');
+    }
+        }
+        
 
         function openAdminModal() {
             document.getElementById('adminModal').style.display = 'flex';
