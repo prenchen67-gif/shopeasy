@@ -162,11 +162,11 @@
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const name = document.getElementById('producttitle').value;
+            const title = document.getElementById('producttitle').value;
             const category = document.getElementById('productCategory').value;
             const price = document.getElementById('productPrice').value;
             const image = document.getElementById('productImage').value;
-            const description = document.getElementById('productDesc').value;
+            const desc = document.getElementById('productDesc').value;
 
             const selectedSizes = [];
             if (category === 'Fashion') {
