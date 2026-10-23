@@ -260,21 +260,56 @@
             `}).join('');
         }
 
+    
         function openProductModal(productId) {
-            const product = state.products.find(item => String(item.id || item._id) === String(productId));
-            if (!product) return;
-            state.selectedProduct = product;
-            state.quantity = 1;
-            document.getElementById('viewTitle').textContent = product.title;
-            document.getElementById('viewPrice').textContent = '৳ ' + product.price;
-            document.getElementById('viewDesc').textContent = product.desc || 'No description available.';
-            document.getElementById('viewImage').src = product.image || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&q=80';
-            const varietySelect = document.getElementById('viewVariety');
-            const options = (product.varieties || 'Default').split(',').map(v => v.trim()).filter(Boolean);
-            varietySelect.innerHTML = options.map(v => `<option value="${v}">${v}</option>`).join('');
-            document.getElementById('qtyValue').textContent = state.quantity;
-            document.getElementById('productViewModal').style.display = 'flex';
+    const product = state.products.find(item => String(item.id || item._id) === String(productId));
+    if (!product) return;
+    state.selectedProduct = product;
+    state.quantity = 1;
+    
+    document.getElementById('viewTitle').textContent = product.title;
+    document.getElementById('viewPrice').textContent = '৳ ' + product.price;
+    document.getElementById('viewDesc').textContent = product.desc || 'কোনো বিবরণ নেই।';
+    document.getElementById('viewImage').src = product.image || '';
+
+    // ১. সাইজ (Sizes) অ্যারে হ্যান্ডেল করার কোড
+    const sizeSelect = document.getElementById('viewVariety'); 
+    if (product.sizes && product.sizes.length > 0) {
+        // যদি ডাটাবেজে sizes অ্যারে থাকে, তবে অপশন বানিয়ে দেব
+        sizeSelect.innerHTML = product.sizes.map(s => `<option value="${s}">সাইজ: ${s}</option>`).join('');
+    } else {
+        sizeSelect.innerHTML = `<option value="N/A">Standard</option>`;
+    }
+
+    // ২. কালার (Color) অ্যারে হ্যান্ডেল করার কোড
+    let colorContainer = document.getElementById('viewColorContainer');
+    if (!colorContainer) {
+        // যদি কালার ড্রপডাউন আগে থেকে না থাকে, তবে ডাইনামিক বানিয়ে দেব
+        const varietyGroup = sizeSelect.closest('.option-group');
+        const colorHtml = `
+            <div class="option-group" id="viewColorContainer" style="margin-top:10px;">
+                <label>কালার সিলেক্ট করুন:</label>
+                <select id="viewColor"></select>
+            </div>
+        `;
+        varietyGroup.insertAdjacentHTML('afterend', colorHtml);
+        colorContainer = document.getElementById('viewColorContainer');
+    }
+
+    const colorSelect = document.getElementById('viewColor');
+    if (product.color && product.color.length > 0) {
+        // কালার অ্যারে বা স্ট্রিং হলে তা অপশনে রূপান্তর করা
+        const colors = Array.isArray(product.color) ? product.color : product.color.split(',').map(c => c.trim());
+        colorSelect.innerHTML = colors.map(c => `<option value="${c}">${c}</option>`).join('');
+        colorContainer.style.display = 'block';
+    } else {
+        colorContainer.style.display = 'none';
+    }
+
+    document.getElementById('qtyValue').textContent = state.quantity;
+    document.getElementById('productViewModal').style.display = 'flex';
         }
+            
 
         function closeModal(id) {
             document.getElementById(id).style.display = 'none';
