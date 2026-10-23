@@ -48,12 +48,12 @@ const adminSchema = new mongoose.Schema({
 });
 
 const productSchema = new mongoose.Schema({
-    name: { type: String, required: true },
+    title: { type: String, required: true },
     category: { type: String, required: true },
     sizes: [{ type: String }], // Array for sizes like ['S', 'M', 'L']
     price: { type: Number, required: true },
     image: { type: String, required: true },
-    description: { type: String }
+    desc: { type: String }
 }, { timestamps: true });
 
 const orderSchema = new mongoose.Schema({
@@ -126,15 +126,15 @@ app.get('/api/products', async (req, res) => {
 // 2. Add New Product (Dashboard API)
 app.post('/api/products', async (req, res) => {
     try {
-        const { name, category, sizes, price, image, description } = req.body;
+        const { title, category, sizes, price, image, desc } = req.body;
         
         const newProduct = new Product({
-            name,
+            title,
             category,
             sizes,
             price,
             image,
-            description
+            desc
         });
 
         await newProduct.save();
