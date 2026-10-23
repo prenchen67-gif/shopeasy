@@ -39,40 +39,28 @@
     <!-- মেইন কন্টেন্ট -->
     <div class="main-content">
         
-    
         <!-- ১. অর্ডার তালিকা সেকশন -->
-<div class="card" id="orders-section">
-    <h2>গ্রাহকদের অর্ডার তালিকা</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>অর্ডার আইডি</th>
-                <th>গ্রাহকের নাম</th>
-                <th>প্রোডাক্ট</th>
-                <th>মূল্য</th>
-                <th>এড্রেস (Address)</th>
-                <th>TXNID</th>
-                <th>PHONE NUMBER</th>
-                <th>স্ট্যাটাস</th>
-            </tr>
-        </thead>
-        <tbody id="orderTableBody">
-            <!-- Sample Data or Dynamic Data from Database -->
-            <tr>
-                <td>#101</td>
-                <td>Md. Rahim</td>
-                <td>টি-শার্ট (Size: L)</td>
-                <td>৫০০ টাকা</td>
-                <td>ধানমন্ডি, ঢাকা</td>
-                <td><strong>BKA1234567</strong></td>
-                <td>01572014498</td>
-                <td><span style="color: orange; font-weight: bold;">Pending</span></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-        
-        
+        <div class="card" id="orders-section">
+            <h2>গ্রাহকদের অর্ডার তালিকা</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>অর্ডার আইডি</th>
+                        <th>গ্রাহকের নাম</th>
+                        <th>প্রোডাক্ট</th>
+                        <th>মূল্য</th>
+                        <th>এড্রেস (Address)</th>
+                        <th>TXNID</th>
+                        <th>PHONE NUMBER</th>
+                        <th>স্ট্যাটাস</th>
+                    </tr>
+                </thead>
+                <tbody id="orderTableBody">
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: #777;">লোড হচ্ছে...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- ২. প্রোডাক্ট যোগ করার ফর্ম সেকশন -->
@@ -188,44 +176,47 @@
                 alert('সার্ভারে সমস্যা হয়েছে!');
             }
         });
-        async function loadOrders() {
-    try {
-        const response = await fetch('/api/orders');
-        const orders = await response.json();
-        
-        const tableBody = document.getElementById('orderTableBody');
-        tableBody.innerHTML = '';
 
-        if (orders.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #777;">কোনো নতুন অর্ডার নেই</td></tr>`;
-            return;
+        // অর্ডার ডাটা সার্ভার থেকে এনে ড্যাশবোর্ডে দেখানোর ফাংশন
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/orders');
+                const orders = await response.json();
+                
+                const tableBody = document.getElementById('orderTableBody');
+                tableBody.innerHTML = '';
+
+                if (orders.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #777;">কোনো নতুন অর্ডার নেই</td></tr>`;
+                    return;
+                }
+
+                orders.forEach((order, index) => {
+                    const row = `
+                        <tr>
+                            <td>#${index + 1}</td>
+                            <td>${order.customerName}</td>
+                            <td>${order.productName}</td>
+                            <td>${order.price} টাকা</td>
+                            <td>${order.address}</td>
+                            <td><strong>${order.txnId}</strong></td>
+                            <td>${order.phone}</td>
+                            <td><span style="color: orange; font-weight: bold;">${order.status}</span></td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                document.getElementById('orderTableBody').innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">অর্ডার লোড করতে সমস্যা হয়েছে</td></tr>`;
+            }
         }
 
-        orders.forEach((order, index) => {
-            const row = `
-                <tr>
-                    <td>#${index + 1}</td>
-                    <td>${order.customerName}</td>
-                    <td>${order.productName}</td>
-                    <td>${order.price} টাকা</td>
-                    <td>${order.address}</td>
-                    <td><strong>${order.txnId}</strong></td>
-                    <td>${order.phone}</td>
-                    <td><span style="color: orange; font-weight: bold;">${order.status}</span></td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
-        });
-    } catch (error) {
-        console.error('Error loading orders:', error);
-    }
-}
-
-// Page load holei order list load hobe
-window.onload = function() {
-    loadOrders();
-};
-                    
+        // পেজ লোড হলেই অর্ডার লিস্ট লোড হবে
+        window.onload = function() {
+            loadOrders();
+        };
     </script>
 </body>
-</html>
+                                   </html>
+                                   
