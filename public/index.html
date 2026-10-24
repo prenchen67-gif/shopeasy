@@ -47,65 +47,6 @@
         .header-actions { display:flex; align-items:center; gap:12px; }
         .cart-btn { background: transparent; border: none; color: white; cursor: pointer; font-size:18px; position: relative; }
         .cart-count { position: absolute; top: -6px; right: -8px; background: #ff6b6b; color: white; font-size: 12px; padding: 2px 6px; border-radius: 12px; }
-        .hero {
-    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://i.postimg.cc/sgJfkw55/image-95bc4398-(1).png');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-color: #1a1a1a;
-    
-    position: relative;
-    overflow: hidden; /* বাইরে গেলে স্ক্রলবার আসবে না */
-    min-height: 180px; /* আপনার প্রয়োজনমতো কভার হাইট */
-}
-
-/* h1 এবং p দুটোকে একসাথে গ্রুপের মতো নিচে পজিশন করা */
-.hero h1, 
-.hero p {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    white-space: nowrap; /* লেখা ভেঙ্গে দুই লাইন হবে না */
-    margin: 0;
-}
-
-/* h1 (আমাদের চমৎকার কালেকশন) - লাল দাগের ঠিক একটু উপরে */
-.hero h1 { 
-    bottom: 22px; 
-    font-size: 16px; 
-    color: #ffffff;
-    animation: slideThrough 6s linear infinite;
-}
-
-/* p (ডিটেইলস ও অর্ডার করতে...) - একদমে লাল দাগের সাথে লাগোয়া */
-.hero p {
-    bottom: 5px; 
-    font-size: 16px; 
-    color: #ffffff;
-    animation: slideThrough 6s linear infinite;
-    animation-delay: 3s; /* h1 বের হওয়ার পর পেছনে পেছনে p আসবে */
-}
-
-/* বাম থেকে ডানে যাওয়ার অ্যানিমেশন */
-@keyframes slideThrough {
-    0% {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-    }
-    90% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-}
-        
-        
         .container { max-width: 1100px; margin: 30px auto; padding: 0 15px; flex: 1; }
         .category-bar { display: flex; gap: 10px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
         .cat-btn { background: white; border: 1px solid #ddd; padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; color: #444; white-space: nowrap; transition: .2s; }
@@ -178,17 +119,56 @@
 
     <style>
     .hero {
-        /* আপনার আপলোড করা নতুন ব্যানার ইমেজ লিঙ্কটি এখানে বসিয়ে দিন */
-        background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://i.postimg.cc/sgJfkw55/image-95bc4398-(1).png');
-        background-size: cover;
-        background-position: center;
-        /* বাকি ডিজাইন কোডগুলো এখানে থাকবে */
+    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://i.postimg.cc/sgJfkw55/image-95bc4398-(1).png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-color: #1a1a1a;
+    
+    position: relative;
+    overflow: hidden;
+    min-height: 180px;
+}
+
+/* Shudhu h1-er styling ebong placement */
+.hero h1 { 
+    position: absolute;
+    bottom: 10px; /* Lal dagar jagai ek line-e thakbe */
+    left: 0;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    
+    /* Dan dik theke bam dike jawar animation */
+    animation: slideRightToLeft 8s linear infinite;
+}
+
+/* Right to Left Animation */
+@keyframes slideRightToLeft {
+    0% {
+        transform: translateX(100%); /* Dan diker baire theke shuru */
+        opacity: 0;
     }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-100%); /* Bam diker baire chole jabe */
+        opacity: 0;
+    }
+}
 </style>
 
 <div class="hero">
-    <h1>আমাদের চমৎকার কালেকশন</h1>
-    <p>ডিটেইলস ও অর্ডার করতে প্রডাক্টের ওপর টাচ করুন</p>
+    <h1>আমাদের চমৎকার কালেকশন ডিটেইলস ও অর্ডার করতে প্রডাক্টের ওপর টাচ করুন</h1>
+
 </div>
         
 
