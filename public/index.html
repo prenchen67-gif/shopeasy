@@ -164,6 +164,166 @@
         opacity: 0;
     }
 }
+        /* Footer Container */
+.site-footer {
+    background-color: #1a1a1a;
+    color: #dddddd;
+    padding: 30px 20px 15px 20px;
+    font-family: inherit;
+    margin-top: 40px;
+}
+
+/* Trust Badges Bar */
+.footer-features {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+    text-align: center;
+    max-width: 1000px;
+    margin: 0 auto 20px auto;
+}
+
+.feature-item {
+    flex: 1;
+    min-width: 200px;
+}
+
+.feature-icon {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.feature-item h4 {
+    font-size: 13px;
+    color: #ffffff;
+    margin: 0;
+    font-weight: 500;
+}
+
+.feature-item .sub-text {
+    font-size: 11px;
+    color: #ff4757;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.footer-divider {
+    border: 0;
+    height: 1px;
+    background: #333333;
+    margin: 20px 0;
+}
+
+/* Footer Grid Columns */
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.footer-col {
+    flex: 1;
+    min-width: 220px;
+}
+
+.footer-logo {
+    color: #ffffff;
+    margin-top: 0;
+    font-size: 20px;
+    letter-spacing: 1px;
+}
+
+.footer-col h4 {
+    color: #ffffff;
+    font-size: 15px;
+    margin-bottom: 12px;
+    margin-top: 0;
+}
+
+.footer-col p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #aaaaaa;
+    margin: 6px 0;
+}
+
+/* WhatsApp Button Styling */
+.whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff !important;
+    background-color: #25d366; /* Official WhatsApp Green */
+    padding: 8px 14px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 5px;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.whatsapp-btn:hover {
+    background-color: #1ebc57;
+    transform: translateY(-2px);
+}
+
+.wa-note {
+    font-size: 11px !important;
+    color: #888888 !important;
+    margin-top: 6px !important;
+}
+
+/* Facebook Button Styling */
+.facebook-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff !important;
+    background-color: #1877f2; /* Official Facebook Blue */
+    padding: 8px 14px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 5px;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.facebook-btn:hover {
+    background-color: #166fe5;
+    transform: translateY(-2px);
+}
+
+.social-icon {
+    font-weight: bold;
+    font-family: sans-serif;
+    background: #ffffff;
+    color: #1877f2;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* Bottom Copyright */
+.footer-bottom {
+    text-align: center;
+    border-top: 1px solid #282828;
+    margin-top: 25px;
+    padding-top: 15px;
+    font-size: 12px;
+    color: #777777;
+    }
+        
 </style>
 
 <div class="hero">
@@ -229,10 +389,64 @@
         </div>
     </div>
 
-    <footer>
-        <div>© 2026 ShopEasy</div>
+    
+        <!-- Footer Section -->
+<footer class="site-footer">
+    <!-- Trust Badges / Services -->
+    <div class="footer-features">
+        <div class="feature-item">
+            <span class="feature-icon">🚚</span>
+            <h4>সারা বাংলাদেশে হোম ডেলিভারি</h4>
+        </div>
+        <div class="feature-item">
+            <span class="feature-icon">💵</span>
+            <h4>ক্যাশ অন ডেলিভারি সুবিধা</h4>
+            <p class="sub-text">(ডেলিভারি চার্জ অগ্রিম প্রযোজ্য)</p>
+        </div>
+        <div class="feature-item">
+            <span class="feature-icon">🔄</span>
+            <h4>সহজ রিটার্ন পলিসি</h4>
+        </div>
+    </div>
+
+    <hr class="footer-divider">
+
+    <!-- Footer Main Content -->
+    <div class="footer-container">
+        <!-- Brand Info -->
+        <div class="footer-col">
+            <h3 class="footer-logo">ShopEasy</h3>
+            <p>আপনার বিশ্বস্ত অনলাইন শপিং পার্টনার। আমরা দিচ্ছি সেরা দামে প্রিমিয়াম কোয়ালিটির প্রোডাক্ট।</p>
+        </div>
+
+        <!-- Contact Info (Only WhatsApp) -->
+        <div class="footer-col">
+            <h4>যোগাযোগ করুন</h4>
+            <p>💬 WhatsApp (মেসেজ দিন):</p>
+            <a href="https://wa.me/8801607576586" target="_blank" class="whatsapp-btn">
+                <span class="wa-icon">💬</span> 01607576586
+            </a>
+            <p class="wa-note">*শুধুমাত্র হোয়াটসঅ্যাপ মেসেজ গ্রহণযোগ্য</p>
+        </div>
+
+        <!-- Social Media Links -->
+        <div class="footer-col">
+            <h4>আমাদের সোশ্যাল মিডিয়া</h4>
+            <div class="social-links">
+                <a href="https://www.facebook.com/share/1J9YjBp24W/" target="_blank" class="facebook-btn">
+                    <span class="social-icon">f</span> Facebook Page
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copyright Bar -->
+    <div class="footer-bottom">
+        <p>&copy; 2026 ShopEasy. All rights reserved.</p>
+    </div>
+</footer>
         
-    </footer>
+        
 
     <script>
         const API_BASE = window.location.origin;
